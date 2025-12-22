@@ -1,60 +1,64 @@
 package com.uberclocked.api.component.model.entity;
 
-import java.util.HashMap;
-import java.util.Map;
+import java.util.HashSet;
+import java.util.Set;
 
-import org.hibernate.annotations.JdbcTypeCode;
-import org.hibernate.type.SqlTypes;
+import com.uberclocked.api.component.model.entity.field.FieldType;
 
-import com.uberclocked.api.component.model.entity.type.ComponentType;
-
+import jakarta.persistence.CollectionTable;
 import jakarta.persistence.Column;
-import jakarta.persistence.Entity;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.Id;
+import jakarta.persistence.ElementCollection;
 import jakarta.persistence.JoinColumn;
-import jakarta.persistence.ManyToOne;
+import jakarta.persistence.Entity;
+import jakarta.persistence.Id;
 import jakarta.persistence.Table;
-import jakarta.persistence.Version;
 
 @Entity
-@Table(name = "component")
+@Table(name = "component_type")
 public class Component {
   @Id
-  @GeneratedValue
-  private Long id;
+  @Column(nullable = false, updatable = false)
+  private String code;
 
-  @Version
-  private long version;
-
-  @ManyToOne(optional = false)
-  @JoinColumn(name = "type_code", nullable = false)
-  private ComponentType type;
-
-  @JdbcTypeCode(SqlTypes.JSON)
   @Column(nullable = false)
-  private Map<String, Object> values = new HashMap<>();
+  private String displayName;
+
+  @ElementCollection
+  @CollectionTable(name = "component_field", joinColumns = @JoinColumn(name = "component_code"))
+  private Set<ComponentField> fields = new HashSet<>();
 
   protected Component() {
   }
 
-  public Component(ComponentType type) {
-    this.type = type;
+  public Component(String code, String displayName) {
+    this.code = code;
+    this.displayName = displayName;
   }
 
-  public Long id() {
-    return id;
+  public Set<ComponentField> fields() {
+    return Set.copyOf(fields);
   }
 
-  public ComponentType type() {
-    return type;
+  public String code() {
+    return code;
   }
 
-  public Map<String, Object> values() {
-    return Map.copyOf(values);
+  public String displayName() {
+    return displayName;
   }
 
-  public void setValue(String fieldName, Object value) {
-    values.put(fieldName, value);
+  public ComponentField removeField(ComponentField field) {
+    fields.remove(field);
+    return field;
+  }
+
+  public ComponentField addField(
+      String name,
+      FieldType type,
+      boolean required,
+      String defaultValue) {
+    ComponentField field = new ComponentField(name, type, required, defaultValue);
+    this.fields.add(field);
+    return field;
   }
 }

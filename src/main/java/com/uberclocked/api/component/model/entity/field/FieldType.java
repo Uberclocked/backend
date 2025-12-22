@@ -1,4 +1,4 @@
-package com.uberclocked.api.component.model.entity.type.field;
+package com.uberclocked.api.component.model.entity.field;
 
 public enum FieldType {
   STRING,
