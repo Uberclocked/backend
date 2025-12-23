@@ -10,7 +10,7 @@ import org.mapstruct.factory.Mappers;
 import com.uberclocked.api.component.model.dto.ComponentDto;
 import com.uberclocked.api.component.model.entity.Component;
 
-public class ComponentMapperTest {
+public class MapperTest {
   private final ComponentMapper mapper = Mappers.getMapper(ComponentMapper.class);
 
   @Test
