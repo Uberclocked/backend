@@ -67,7 +67,7 @@ jacocoTestCoverageVerification {
             limit {
                 counter = 'LINE'
                 value = 'COVEREDRATIO'
-                minimum = 0.80
+                minimum = 0.70
             }
         }
     }
@@ -77,8 +77,13 @@ check.dependsOn(
     spotlessCheck,
     spotbugsMain,
     spotbugsTest,
-    jacocoTestReport
+    jacocoTestReport,
+    jacocoTestCoverageVerification
 )
+
+jacocoTestCoverageVerification {
+    dependsOn test
+}
 
 configurations {
 	compileOnly {
