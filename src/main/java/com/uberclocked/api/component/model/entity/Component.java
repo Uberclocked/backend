@@ -35,15 +35,15 @@ public class Component {
     this.displayName = displayName;
   }
 
-  public Set<ComponentField> fields() {
+  public Set<ComponentField> getFields() {
     return Set.copyOf(fields);
   }
 
-  public String code() {
+  public String getCode() {
     return code;
   }
 
-  public String displayName() {
+  public String getDisplayName() {
     return displayName;
   }
 
