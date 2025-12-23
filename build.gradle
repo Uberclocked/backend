@@ -28,8 +28,8 @@ spotless {
 }
 
 spotbugs {
-    effort = 'max'
-    reportLevel = 'low'
+  effort = 'max'
+  reportLevel = 'low'
 }
 
 tasks.withType(com.github.spotbugs.snom.SpotBugsTask).configureEach {
