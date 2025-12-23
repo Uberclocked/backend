@@ -1,6 +1,8 @@
 package com.uberclocked.api.component.model.entity;
 
 import java.util.HashSet;
+import java.util.Iterator;
+import java.util.NoSuchElementException;
 import java.util.Set;
 
 import com.uberclocked.api.component.model.entity.field.FieldType;
@@ -32,13 +34,9 @@ public class Component {
   }
 
   public Component(String code, String displayName) {
-    this(code, displayName, new HashSet<>());
-  }
-
-  public Component(String code, String displayName, Set<ComponentField> fields) {
     this.code = code;
     this.displayName = displayName;
-    this.fields = new HashSet<>(fields);
+    this.fields = new HashSet<>();
   }
 
   public Set<ComponentField> getFields() {
@@ -53,9 +51,19 @@ public class Component {
     return displayName;
   }
 
-  public ComponentField removeField(ComponentField field) {
-    fields.remove(field);
-    return field;
+  public ComponentField removeField(String fieldName) {
+    Iterator<ComponentField> iterator = fields.iterator();
+
+    while (iterator.hasNext()) {
+      ComponentField field = iterator.next();
+      if (field.name().equals(fieldName)) {
+        iterator.remove();
+        return field;
+      }
+    }
+
+    throw new NoSuchElementException(
+        "Field with name '%s' not found".formatted(fieldName));
   }
 
   public ComponentField addField(
