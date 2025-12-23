@@ -11,7 +11,7 @@ import jakarta.transaction.Transactional;
 
 @Service
 @Transactional
-public final class ComponentService {
+public class ComponentService {
   private ComponentRepository repository;
   private ComponentMapper mapper;
 
@@ -21,7 +21,7 @@ public final class ComponentService {
   }
 
   public ComponentDto create(ComponentDto dto) {
-    if (repository.existByCode(dto.code())) {
+    if (repository.existsByCode(dto.code())) {
       throw new ResourceAlreadyExistsException(
           "Component with code '" + dto.code() + "' already exists.");
     }

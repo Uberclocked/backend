@@ -27,7 +27,7 @@ public class Component {
   @CollectionTable(name = "component_field", joinColumns = @JoinColumn(name = "component_code"))
   private Set<ComponentField> fields;
 
-  protected Component() {
+  public Component() {
     this.fields = new HashSet<>();
   }
 

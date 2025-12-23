@@ -7,5 +7,5 @@ import com.uberclocked.api.component.model.entity.Component;
 
 @Repository
 public interface ComponentRepository extends JpaRepository<Component, String> {
-  boolean existByCode(String code);
+  boolean existsByCode(String code);
 }
