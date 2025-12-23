@@ -25,7 +25,7 @@ class ComponentDtoTest {
 
   @Test
   void validation_whenCodeIsBlank_fails() {
-    ComponentDto dto = new ComponentDto("", "Test Name", Set.of());
+    ComponentDto dto = new ComponentDto("", "Test Component", Set.of());
 
     Set<ConstraintViolation<ComponentDto>> violations = validator.validate(dto);
 
@@ -43,5 +43,16 @@ class ComponentDtoTest {
     assertTrue(
         violations.stream()
             .anyMatch(v -> v.getPropertyPath().toString().equals("displayName")));
+  }
+
+  @Test
+  void validation_whenDisplayFieldsAreNull_fails() {
+    ComponentDto dto = new ComponentDto("TC", "Test Component", null);
+
+    Set<ConstraintViolation<ComponentDto>> violations = validator.validate(dto);
+
+    assertTrue(
+        violations.stream()
+            .anyMatch(v -> v.getPropertyPath().toString().equals("fields")));
   }
 }
