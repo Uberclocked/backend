@@ -25,14 +25,20 @@ public class Component {
 
   @ElementCollection
   @CollectionTable(name = "component_field", joinColumns = @JoinColumn(name = "component_code"))
-  private Set<ComponentField> fields = new HashSet<>();
+  private Set<ComponentField> fields;
 
   protected Component() {
+    this.fields = new HashSet<>();
   }
 
   public Component(String code, String displayName) {
+    this(code, displayName, new HashSet<>());
+  }
+
+  public Component(String code, String displayName, Set<ComponentField> fields) {
     this.code = code;
     this.displayName = displayName;
+    this.fields = new HashSet<>(fields);
   }
 
   public Set<ComponentField> getFields() {

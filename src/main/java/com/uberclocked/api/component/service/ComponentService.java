@@ -15,6 +15,11 @@ public final class ComponentService {
   private ComponentRepository repository;
   private ComponentMapper mapper;
 
+  public ComponentService(ComponentRepository repository, ComponentMapper mapper) {
+    this.repository = repository;
+    this.mapper = mapper;
+  }
+
   public ComponentDto create(ComponentDto dto) {
     if (repository.existByCode(dto.code())) {
       throw new ResourceAlreadyExistsException(
