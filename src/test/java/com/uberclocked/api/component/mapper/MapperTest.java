@@ -3,8 +3,10 @@ package com.uberclocked.api.component.mapper;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 import com.uberclocked.api.component.model.dto.ComponentDto;
+import com.uberclocked.api.component.model.dto.field.ComponentFieldDto;
 import com.uberclocked.api.component.model.entity.Component;
-import java.util.HashSet;
+import com.uberclocked.api.component.model.entity.field.FieldType;
+import java.util.Set;
 import org.junit.jupiter.api.Test;
 import org.mapstruct.factory.Mappers;
 
@@ -25,7 +27,11 @@ public class MapperTest {
   void toEntity_whenDtoProvided_mapsAllFields() {
     String code = "code";
     String displayName = "display name";
-    ComponentDto dto = new ComponentDto(code, displayName, new HashSet<>());
+    ComponentDto dto =
+        new ComponentDto(
+            code,
+            displayName,
+            Set.of(new ComponentFieldDto("Test field", FieldType.STRING, true, null)));
     Component entity = mapper.toEntity(dto);
     assertEquals(code, entity.getCode());
     assertEquals(displayName, entity.getDisplayName());

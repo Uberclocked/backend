@@ -53,21 +53,52 @@ jacoco {
     toolVersion = '0.8.11'
 }
 
+def jacocoExcludes = [
+    // Spring proxies
+    '**/*$$EnhancerBySpringCGLIB$$*',
+    '**/*$$SpringCGLIB$$*',
+    '**/*$$FastClassBySpringCGLIB$$*',
+    '**/*$Proxy*',
+
+    // Spring Boot
+    '**/*Application.class',
+    '**/*Configuration.class',
+    '**/config/**',
+
+    // MapStruct
+    '**/*MapperImpl.class',
+
+    // Lombok / synthetic
+    '**/*$*'
+]
+
 jacocoTestReport {
     dependsOn test
     reports {
         xml.required.set(true)
         html.required.set(true)
     }
+
+    classDirectories.setFrom(
+        files(classDirectories.files.collect {
+            fileTree(dir: it, exclude: jacocoExcludes)
+        })
+    )
 }
 
 jacocoTestCoverageVerification {
+    classDirectories.setFrom(
+        files(classDirectories.files.collect {
+            fileTree(dir: it, exclude: jacocoExcludes)
+        })
+    )
+
     violationRules {
         rule {
             limit {
                 counter = 'LINE'
                 value = 'COVEREDRATIO'
-                minimum = 0.70
+                minimum = 0.80
             }
         }
     }
