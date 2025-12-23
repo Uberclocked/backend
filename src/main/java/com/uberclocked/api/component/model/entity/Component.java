@@ -38,7 +38,7 @@ public class Component {
   }
 
   public Set<ComponentField> getFields() {
-    return fields;
+    return new HashSet<>(fields);
   }
 
   public String getCode() {
