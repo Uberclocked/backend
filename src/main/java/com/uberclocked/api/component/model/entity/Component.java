@@ -29,7 +29,7 @@ public class Component {
   @CollectionTable(name = "component_field", joinColumns = @JoinColumn(name = "component_code"))
   private Set<ComponentField> fields;
 
-  public Component() {
+  protected Component() {
     this.fields = new HashSet<>();
   }
 
@@ -40,7 +40,7 @@ public class Component {
   }
 
   public Set<ComponentField> getFields() {
-    return Set.copyOf(fields);
+    return fields;
   }
 
   public String getCode() {
