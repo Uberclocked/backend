@@ -14,6 +14,10 @@
 
     <module name="SuppressWarningsFilter"/>
 
+    <module name="SuppressionXpathFilter">
+        <property name="file" value="config/checkstyle/suppressions.xml"/>
+    </module>
+
     <module name="TreeWalker">
 
         <!-- Imports -->
@@ -32,11 +36,15 @@
         <module name="OneTopLevelClass"/>
         <module name="ModifierOrder"/>
 
-        <!-- Naming (lightweight) -->
+        <!-- Naming -->
         <module name="TypeName"/>
-        <module name="MethodName"/>
+
+        <!-- Production code method naming -->
+        <module name="MethodName">
+            <property name="format" value="^[a-z][a-zA-Z0-9]*$"/>
+        </module>
+
         <module name="ParameterName"/>
         <module name="LocalVariableName"/>
-
     </module>
 </module>
