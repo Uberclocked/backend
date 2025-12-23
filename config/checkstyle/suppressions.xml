@@ -4,10 +4,8 @@
     "https://checkstyle.org/dtds/suppressions_1_2.dtd">
 
 <suppressions>
-
     <!-- Disable MethodName rule for ALL test sources -->
     <suppress
         files=".*/src/test/java/.*"
         checks="MethodName"/>
-
 </suppressions>
