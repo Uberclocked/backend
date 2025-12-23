@@ -1,13 +1,11 @@
 package com.uberclocked.api.component.service;
 
-import org.springframework.stereotype.Service;
-
 import com.uberclocked.api.common.exceptions.ResourceAlreadyExistsException;
 import com.uberclocked.api.component.mapper.ComponentMapper;
 import com.uberclocked.api.component.model.dto.ComponentDto;
 import com.uberclocked.api.component.repository.ComponentRepository;
-
 import jakarta.transaction.Transactional;
+import org.springframework.stereotype.Service;
 
 @Service
 @Transactional

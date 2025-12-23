@@ -2,13 +2,11 @@ package com.uberclocked.api.component.model.dto;
 
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
-import java.util.Set;
-
-import org.junit.jupiter.api.Test;
-
 import jakarta.validation.ConstraintViolation;
 import jakarta.validation.Validation;
 import jakarta.validation.Validator;
+import java.util.Set;
+import org.junit.jupiter.api.Test;
 
 class ComponentDtoTest {
 
@@ -29,9 +27,7 @@ class ComponentDtoTest {
 
     Set<ConstraintViolation<ComponentDto>> violations = validator.validate(dto);
 
-    assertTrue(
-        violations.stream()
-            .anyMatch(v -> v.getPropertyPath().toString().equals("code")));
+    assertTrue(violations.stream().anyMatch(v -> v.getPropertyPath().toString().equals("code")));
   }
 
   @Test
@@ -41,8 +37,7 @@ class ComponentDtoTest {
     Set<ConstraintViolation<ComponentDto>> violations = validator.validate(dto);
 
     assertTrue(
-        violations.stream()
-            .anyMatch(v -> v.getPropertyPath().toString().equals("displayName")));
+        violations.stream().anyMatch(v -> v.getPropertyPath().toString().equals("displayName")));
   }
 
   @Test
@@ -51,8 +46,6 @@ class ComponentDtoTest {
 
     Set<ConstraintViolation<ComponentDto>> violations = validator.validate(dto);
 
-    assertTrue(
-        violations.stream()
-            .anyMatch(v -> v.getPropertyPath().toString().equals("fields")));
+    assertTrue(violations.stream().anyMatch(v -> v.getPropertyPath().toString().equals("fields")));
   }
 }

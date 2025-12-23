@@ -1,19 +1,17 @@
 package com.uberclocked.api.component.model.entity;
 
+import com.uberclocked.api.component.model.entity.field.FieldType;
+import jakarta.persistence.CollectionTable;
+import jakarta.persistence.Column;
+import jakarta.persistence.ElementCollection;
+import jakarta.persistence.Entity;
+import jakarta.persistence.Id;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.Table;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.NoSuchElementException;
 import java.util.Set;
-
-import com.uberclocked.api.component.model.entity.field.FieldType;
-
-import jakarta.persistence.CollectionTable;
-import jakarta.persistence.Column;
-import jakarta.persistence.ElementCollection;
-import jakarta.persistence.JoinColumn;
-import jakarta.persistence.Entity;
-import jakarta.persistence.Id;
-import jakarta.persistence.Table;
 
 @Entity
 @Table(name = "component_type")
@@ -62,15 +60,11 @@ public class Component {
       }
     }
 
-    throw new NoSuchElementException(
-        "Field with name '%s' not found".formatted(fieldName));
+    throw new NoSuchElementException("Field with name '%s' not found".formatted(fieldName));
   }
 
   public ComponentField addField(
-      String name,
-      FieldType type,
-      boolean required,
-      String defaultValue) {
+      String name, FieldType type, boolean required, String defaultValue) {
     ComponentField field = new ComponentField(name, type, required, defaultValue);
     this.fields.add(field);
     return field;

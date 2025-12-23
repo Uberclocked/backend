@@ -2,13 +2,11 @@ package com.uberclocked.api.component.mapper;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
-import java.util.HashSet;
-
-import org.junit.jupiter.api.Test;
-import org.mapstruct.factory.Mappers;
-
 import com.uberclocked.api.component.model.dto.ComponentDto;
 import com.uberclocked.api.component.model.entity.Component;
+import java.util.HashSet;
+import org.junit.jupiter.api.Test;
+import org.mapstruct.factory.Mappers;
 
 public class MapperTest {
   private final ComponentMapper mapper = Mappers.getMapper(ComponentMapper.class);

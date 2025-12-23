@@ -4,11 +4,9 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
-import java.util.NoSuchElementException;
-
-import org.junit.jupiter.api.Test;
-
 import com.uberclocked.api.component.model.entity.field.FieldType;
+import java.util.NoSuchElementException;
+import org.junit.jupiter.api.Test;
 
 class ComponentTest {
 
@@ -39,8 +37,6 @@ class ComponentTest {
   void removeField_whenFieldNameDoesNotExist_throwsException() {
     Component component = new Component("TC", "Test Component");
 
-    assertThrows(
-        NoSuchElementException.class,
-        () -> component.removeField("Missing Field"));
+    assertThrows(NoSuchElementException.class, () -> component.removeField("Missing Field"));
   }
 }
