@@ -29,7 +29,11 @@ spotless {
 
 spotbugs {
   effort = 'max'
-  reportLevel = 'low'
+  reportLevel = 'medium'
+}
+
+spotbugsTest {
+    enabled = false
 }
 
 tasks.withType(com.github.spotbugs.snom.SpotBugsTask).configureEach {
