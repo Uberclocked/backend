@@ -3,6 +3,7 @@ package com.uberclocked.api.component.controller;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 import com.uberclocked.api.component.model.dto.ComponentDto;
 import com.uberclocked.api.component.service.ComponentService;
@@ -16,8 +17,10 @@ import org.springframework.test.web.servlet.MockMvc;
 
 @WebMvcTest(ComponentController.class)
 public class ControllerTest {
-  @Autowired MockMvc mockMvc;
-  @MockitoBean ComponentService service;
+  @Autowired
+  MockMvc mockMvc;
+  @MockitoBean
+  ComponentService service;
 
   @Test
   void create_whenValid_returns201() throws Exception {
@@ -30,11 +33,12 @@ public class ControllerTest {
             .contentType(MediaType.APPLICATION_JSON)
             .content(
                 """
-                {
-                "code": "TC,
-                "displayName": "Test Component",
-                "fields": []
-                }
-            """));
+                        {
+                        "code": "TC,
+                        "displayName": "Test Component",
+                        "fields": []
+                        }
+                    """))
+        .andExpect(status().isCreated());
   }
 }
