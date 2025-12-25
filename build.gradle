@@ -127,11 +127,11 @@ repositories {
 }
 
 dependencies {
-  implementation 'org.springframework.boot:spring-boot-h2console'
+  implementation 'org.springframework.boot:spring-boot-starter-webmvc'
   implementation 'org.springframework.boot:spring-boot-starter-data-jpa'
   implementation 'org.springframework.boot:spring-boot-starter-security'
   implementation 'org.springframework.boot:spring-boot-starter-validation'
-  implementation 'org.springframework.boot:spring-boot-starter-webmvc'
+  implementation 'org.springframework.boot:spring-boot-h2console'
 
   // OpenAPI / Swagger
   implementation 'org.springdoc:springdoc-openapi-starter-webmvc-ui:2.5.0'
@@ -144,7 +144,7 @@ dependencies {
   implementation 'org.mapstruct:mapstruct:1.6.0'
   annotationProcessor 'org.mapstruct:mapstruct-processor:1.6.0'
 
-   // Databases
+  // Databases
   runtimeOnly 'com.h2database:h2'
   runtimeOnly 'org.postgresql:postgresql'
 

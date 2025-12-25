@@ -34,17 +34,43 @@ public class ControllerTest {
 
     when(service.create(any())).thenReturn(dto);
 
+    String requestBody = """
+            {
+          "code": "hero-banner",
+          "displayName": "Hero Banner",
+          "fields": [
+            {
+              "name": "title",
+              "type": "STRING",
+              "required": true,
+              "defaultValue": null
+            },
+            {
+              "name": "description",
+              "type": "STRING",
+              "required": false,
+              "defaultValue": "Default description"
+            },
+            {
+              "name": "imageUrl",
+              "type": "STRING",
+              "required": true,
+              "defaultValue": null
+            },
+            {
+              "name": "showButton",
+              "type": "BOOLEAN",
+              "required": false,
+              "defaultValue": "true"
+            }
+          ]
+        }
+            """;
+
     mockMvc.perform(
         post("/components")
             .contentType(MediaType.APPLICATION_JSON)
-            .content(
-                """
-                        {
-                        "code": "TC,
-                        "displayName": "Test Component",
-                        "fields": []
-                        }
-                    """))
+            .content(requestBody))
         .andExpect(status().isCreated());
   }
 }

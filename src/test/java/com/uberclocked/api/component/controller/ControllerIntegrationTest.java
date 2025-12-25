@@ -25,28 +25,28 @@ class ControllerIntegrationTest {
 
   @Test
   void create_whenValid_persistsAndReturns201() throws Exception {
+    String requestBody = """
+        {
+          "code": "TC",
+          "displayName": "Test Component",
+          "fields": [
+            {
+              "name": "Test Field",
+              "type": "STRING",
+              "required": true,
+              "defaultValue": null
+            }]}
+        """;
+
     mockMvc.perform(post("/components")
         .with(csrf())
         .contentType(MediaType.APPLICATION_JSON)
-        .content("""
-            {
-              "code": "C1",
-              "displayName": "Component 1",
-              "fields": [
-                {
-                  "name": "enabled",
-                  "type": "BOOLEAN",
-                  "required": true,
-                  "defaultValue": null
-                }
-              ]
-            }
-                                """))
+        .content(requestBody))
         .andExpect(status().isCreated())
         .andExpect(content().contentTypeCompatibleWith(MediaType.APPLICATION_JSON))
         .andExpect(jsonPath("$.code").value("TC"))
         .andExpect(jsonPath("$.displayName").value("Test Component"))
         .andExpect(jsonPath("$.fields").isArray())
-        .andExpect(jsonPath("$.fields").isEmpty());
+        .andExpect(jsonPath("$.fields").isNotEmpty());
   }
 }
