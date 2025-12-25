@@ -8,7 +8,6 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import com.uberclocked.api.component.model.dto.ComponentDto;
 import com.uberclocked.api.component.service.ComponentService;
 import com.uberclocked.api.security.TestSecurityConfig;
-
 import java.util.HashSet;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -23,10 +22,8 @@ import org.springframework.test.web.servlet.MockMvc;
 @ActiveProfiles("test")
 @Import(TestSecurityConfig.class)
 public class ControllerTest {
-  @Autowired
-  MockMvc mockMvc;
-  @MockitoBean
-  ComponentService service;
+  @Autowired MockMvc mockMvc;
+  @MockitoBean ComponentService service;
 
   @Test
   void create_whenValid_returns201() throws Exception {
@@ -34,7 +31,8 @@ public class ControllerTest {
 
     when(service.create(any())).thenReturn(dto);
 
-    String requestBody = """
+    String requestBody =
+        """
             {
           "code": "hero-banner",
           "displayName": "Hero Banner",
@@ -67,10 +65,8 @@ public class ControllerTest {
         }
             """;
 
-    mockMvc.perform(
-        post("/components")
-            .contentType(MediaType.APPLICATION_JSON)
-            .content(requestBody))
+    mockMvc
+        .perform(post("/components").contentType(MediaType.APPLICATION_JSON).content(requestBody))
         .andExpect(status().isCreated());
   }
 }

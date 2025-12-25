@@ -5,5 +5,4 @@ import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 
 public record ComponentFieldDto(
-    @NotBlank String name, @NotNull FieldType type, boolean required, String defaultValue) {
-}
+    @NotBlank String name, @NotNull FieldType type, boolean required, String defaultValue) {}
