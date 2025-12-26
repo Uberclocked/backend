@@ -4,6 +4,8 @@ import com.uberclocked.api.common.exceptions.ResourceAlreadyExistsException;
 import com.uberclocked.api.common.exceptions.ResourceDoesNotExistsException;
 import com.uberclocked.api.component.mapper.ComponentMapper;
 import com.uberclocked.api.component.model.dto.ComponentDto;
+import com.uberclocked.api.component.model.dto.UpdateComponentDto;
+import com.uberclocked.api.component.model.entity.Component;
 import com.uberclocked.api.component.repository.ComponentRepository;
 import jakarta.transaction.Transactional;
 import org.springframework.stereotype.Service;
@@ -25,6 +27,12 @@ public class ComponentService {
           "Component with code '" + dto.code() + "' already exists.");
     }
     return mapper.toDto(repository.save(mapper.toEntity(dto)));
+  }
+
+  public ComponentDto update(UpdateComponentDto dto, String code) {
+    Component entity = repository.getReferenceById(code);
+    mapper.update(dto, entity);
+    return mapper.toDto(entity);
   }
 
   public void delete(String code) {

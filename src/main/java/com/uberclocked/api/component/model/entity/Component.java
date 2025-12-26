@@ -44,6 +44,10 @@ public class Component {
     return code;
   }
 
+  public void setDisplayName(String displayName) {
+    this.displayName = displayName;
+  }
+
   public String getDisplayName() {
     return displayName;
   }
@@ -63,5 +67,9 @@ public class Component {
     ComponentField field = new ComponentField(type, required, defaultValue);
     fields.put(name, field);
     return field;
+  }
+
+  public void clearFields() {
+    this.fields = new HashMap<>();
   }
 }

@@ -1,6 +1,7 @@
 package com.uberclocked.api.component.controller;
 
 import com.uberclocked.api.component.model.dto.ComponentDto;
+import com.uberclocked.api.component.model.dto.UpdateComponentDto;
 import com.uberclocked.api.component.service.ComponentService;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
@@ -22,9 +23,7 @@ import org.springframework.web.bind.annotation.RestController;
 public class ComponentController {
   private ComponentService service;
 
-  @SuppressFBWarnings(
-      value = "EI_EXPOSE_REP2",
-      justification = "Spring-managed service is injected and intentionally shared")
+  @SuppressFBWarnings(value = "EI_EXPOSE_REP2", justification = "Spring-managed service is injected and intentionally shared")
   public ComponentController(ComponentService service) {
     this.service = service;
   }
@@ -33,6 +32,12 @@ public class ComponentController {
   @ResponseStatus(HttpStatus.CREATED)
   public ComponentDto create(@Valid @RequestBody ComponentDto dto) {
     return service.create(dto);
+  }
+
+  @DeleteMapping("/{code}")
+  @ResponseStatus(HttpStatus.OK)
+  public ComponentDto update(@RequestBody UpdateComponentDto dto, @PathVariable("code") String code) {
+    return service.update(dto, code);
   }
 
   @DeleteMapping("/{code}")

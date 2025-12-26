@@ -1,6 +1,7 @@
 package com.uberclocked.api.component.mapper;
 
 import com.uberclocked.api.component.model.dto.ComponentDto;
+import com.uberclocked.api.component.model.dto.UpdateComponentDto;
 import com.uberclocked.api.component.model.entity.Component;
 import org.mapstruct.AfterMapping;
 import org.mapstruct.Mapper;
@@ -15,15 +16,32 @@ public interface ComponentMapper {
   Component toEntity(ComponentDto dto);
 
   @AfterMapping
-  default void mapFields(ComponentDto dto, @MappingTarget Component entity) {
-    dto.fields()
-        .entrySet()
-        .forEach(
-            entry ->
-                entity.addField(
-                    entry.getKey(),
-                    entry.getValue().type(),
-                    entry.getValue().required(),
-                    entry.getValue().defaultValue()));
+  default void mapCreateFields(ComponentDto dto, @MappingTarget Component entity) {
+    dto.fields().forEach(
+        (key, value) -> entity.addField(
+            key,
+            value.type(),
+            value.required(),
+            value.defaultValue()));
+  }
+
+  @Mapping(target = "displayName", ignore = true)
+  @Mapping(target = "fields", ignore = true)
+  void update(UpdateComponentDto dto, @MappingTarget Component entity);
+
+  @AfterMapping
+  default void patch(UpdateComponentDto dto, @MappingTarget Component entity) {
+    dto.displayName().ifPresent(entity::setDisplayName);
+
+    if (dto.fields().isPresent()) {
+      entity.clearFields();
+      entity.getFields().keySet().forEach(entity::removeField);
+      dto.fields().get().forEach(
+          (key, value) -> entity.addField(
+              key,
+              value.type(),
+              value.required(),
+              value.defaultValue()));
+    }
   }
 }
