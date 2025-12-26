@@ -1,0 +1,16 @@
+name: CI
+
+permissions:
+  contents: read
+
+on:
+  pull_request:
+    branches:
+      - main
+      - dev
+
+jobs:
+  java-ci:
+    uses: santiago-garrote/workflows/.github/workflows/java-ci.yaml@v1
+    with:
+      java-version: "21"
