@@ -19,10 +19,11 @@ public interface ComponentMapper {
     dto.fields()
         .entrySet()
         .forEach(
-            entry -> entity.addField(
-                entry.getKey(),
-                entry.getValue().type(),
-                entry.getValue().required(),
-                entry.getValue().defaultValue()));
+            entry ->
+                entity.addField(
+                    entry.getKey(),
+                    entry.getValue().type(),
+                    entry.getValue().required(),
+                    entry.getValue().defaultValue()));
   }
 }

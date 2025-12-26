@@ -28,7 +28,9 @@ class ComponentTest {
     String fieldName = "Test Field";
     component.addField(fieldName, FieldType.STRING, true, null);
 
-    assertThrows(IllegalArgumentException.class, () -> component.addField(fieldName, FieldType.STRING, true, null));
+    assertThrows(
+        IllegalArgumentException.class,
+        () -> component.addField(fieldName, FieldType.STRING, true, null));
   }
 
   @Test

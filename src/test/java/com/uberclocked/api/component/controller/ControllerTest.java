@@ -27,10 +27,8 @@ import org.springframework.test.web.servlet.MockMvc;
 @ActiveProfiles("test")
 @Import(TestSecurityConfig.class)
 public class ControllerTest {
-  @Autowired
-  MockMvc mockMvc;
-  @MockitoBean
-  ComponentService service;
+  @Autowired MockMvc mockMvc;
+  @MockitoBean ComponentService service;
 
   @Test
   void create_whenValid_returns201() throws Exception {

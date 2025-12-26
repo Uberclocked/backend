@@ -25,8 +25,7 @@ import org.springframework.test.web.servlet.MockMvc;
 @ActiveProfiles("test")
 class ControllerIntegrationTest {
 
-  @Autowired
-  MockMvc mockMvc;
+  @Autowired MockMvc mockMvc;
 
   @Test
   void create_whenValid_persistsAndReturns201() throws Exception {
@@ -59,14 +58,12 @@ class ControllerIntegrationTest {
     ComponentDto dto = new ComponentDto(code, "Test Component", Map.of());
 
     String requestBody = new ObjectMapper().writeValueAsString(dto);
-    mockMvc
-        .perform(
-            post("/components")
-                .with(csrf())
-                .contentType(MediaType.APPLICATION_JSON)
-                .content(requestBody));
+    mockMvc.perform(
+        post("/components")
+            .with(csrf())
+            .contentType(MediaType.APPLICATION_JSON)
+            .content(requestBody));
 
-    mockMvc.perform(delete("/components/" + code))
-        .andExpect(status().isNoContent());
+    mockMvc.perform(delete("/components/" + code)).andExpect(status().isNoContent());
   }
 }

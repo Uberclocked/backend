@@ -1,10 +1,10 @@
 package com.uberclocked.api.component.service;
 
 import static org.junit.jupiter.api.Assertions.assertThrows;
-import static org.mockito.Mockito.when;
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
-import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.when;
 
 import com.uberclocked.api.common.exceptions.ResourceAlreadyExistsException;
 import com.uberclocked.api.common.exceptions.ResourceDoesNotExistsException;
@@ -20,14 +20,11 @@ import org.mockito.junit.jupiter.MockitoExtension;
 
 @ExtendWith(MockitoExtension.class)
 public class ServiceTest {
-  @Mock
-  ComponentRepository repository;
+  @Mock ComponentRepository repository;
 
-  @Mock
-  ComponentMapper mapper;
+  @Mock ComponentMapper mapper;
 
-  @InjectMocks
-  ComponentService service;
+  @InjectMocks ComponentService service;
 
   @Test
   void create_whenCodeExists_throwsException() {
