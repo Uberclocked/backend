@@ -33,7 +33,7 @@ public class ComponentController {
 
   @DeleteMapping("/{code}")
   @ResponseStatus(HttpStatus.NO_CONTENT)
-  public void delete(@PathVariable String code) {
+  public void delete(@PathVariable("code") String code) {
     service.delete(code);
   }
 }
