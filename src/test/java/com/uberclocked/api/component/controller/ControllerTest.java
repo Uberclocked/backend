@@ -1,0 +1,72 @@
+package com.uberclocked.api.component.controller;
+
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.when;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
+
+import com.uberclocked.api.component.model.dto.ComponentDto;
+import com.uberclocked.api.component.service.ComponentService;
+import com.uberclocked.api.security.TestSecurityConfig;
+import java.util.HashSet;
+import org.junit.jupiter.api.Test;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.webmvc.test.autoconfigure.WebMvcTest;
+import org.springframework.context.annotation.Import;
+import org.springframework.http.MediaType;
+import org.springframework.test.context.ActiveProfiles;
+import org.springframework.test.context.bean.override.mockito.MockitoBean;
+import org.springframework.test.web.servlet.MockMvc;
+
+@WebMvcTest(ComponentController.class)
+@ActiveProfiles("test")
+@Import(TestSecurityConfig.class)
+public class ControllerTest {
+  @Autowired MockMvc mockMvc;
+  @MockitoBean ComponentService service;
+
+  @Test
+  void create_whenValid_returns201() throws Exception {
+    ComponentDto dto = new ComponentDto("TC", "Test Component", new HashSet<>());
+
+    when(service.create(any())).thenReturn(dto);
+
+    String requestBody =
+        """
+            {
+          "code": "hero-banner",
+          "displayName": "Hero Banner",
+          "fields": [
+            {
+              "name": "title",
+              "type": "STRING",
+              "required": true,
+              "defaultValue": null
+            },
+            {
+              "name": "description",
+              "type": "STRING",
+              "required": false,
+              "defaultValue": "Default description"
+            },
+            {
+              "name": "imageUrl",
+              "type": "STRING",
+              "required": true,
+              "defaultValue": null
+            },
+            {
+              "name": "showButton",
+              "type": "BOOLEAN",
+              "required": false,
+              "defaultValue": "true"
+            }
+          ]
+        }
+            """;
+
+    mockMvc
+        .perform(post("/components").contentType(MediaType.APPLICATION_JSON).content(requestBody))
+        .andExpect(status().isCreated());
+  }
+}
