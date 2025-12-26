@@ -7,7 +7,7 @@ import com.uberclocked.api.component.mapper.ComponentMapper;
 import com.uberclocked.api.component.model.dto.ComponentDto;
 import com.uberclocked.api.component.model.entity.Component;
 import com.uberclocked.api.component.repository.ComponentRepository;
-import java.util.HashSet;
+import java.util.Map;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.data.jpa.test.autoconfigure.DataJpaTest;
@@ -24,7 +24,7 @@ public class ServiceJpaTest {
   @Test
   void create_persistsEntity() {
     String code = "TC";
-    ComponentDto dto = new ComponentDto(code, "Test Component", new HashSet<>());
+    ComponentDto dto = new ComponentDto(code, "Test Component", Map.of());
     when(mapper.toEntity(dto)).thenReturn(new Component(dto.code(), dto.displayName()));
 
     service.create(dto);

@@ -6,6 +6,11 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.uberclocked.api.component.model.dto.ComponentDto;
+import com.uberclocked.api.component.model.dto.field.ComponentFieldDto;
+import com.uberclocked.api.component.model.entity.field.FieldType;
+import java.util.Map;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -23,19 +28,11 @@ class ControllerIntegrationTest {
 
   @Test
   void create_whenValid_persistsAndReturns201() throws Exception {
-    String requestBody =
-        """
-        {
-          "code": "TC",
-          "displayName": "Test Component",
-          "fields": [
-            {
-              "name": "Test Field",
-              "type": "STRING",
-              "required": true,
-              "defaultValue": null
-            }]}
-        """;
+    String fieldName = "Test Field";
+    ComponentFieldDto fieldDto = new ComponentFieldDto(FieldType.STRING, false, null);
+    ComponentDto dto = new ComponentDto("TC", "Test Component", Map.of(fieldName, fieldDto));
+
+    String requestBody = new ObjectMapper().writeValueAsString(dto);
 
     mockMvc
         .perform(
@@ -47,7 +44,10 @@ class ControllerIntegrationTest {
         .andExpect(content().contentTypeCompatibleWith(MediaType.APPLICATION_JSON))
         .andExpect(jsonPath("$.code").value("TC"))
         .andExpect(jsonPath("$.displayName").value("Test Component"))
-        .andExpect(jsonPath("$.fields").isArray())
-        .andExpect(jsonPath("$.fields").isNotEmpty());
+        .andExpect(jsonPath("$.fields").isMap())
+        .andExpect(jsonPath("$.fields['Test Field']").exists())
+        .andExpect(jsonPath("$.fields['Test Field'].type").value("STRING"))
+        .andExpect(jsonPath("$.fields['Test Field'].required").value(false))
+        .andExpect(jsonPath("$.fields['Test Field'].defaultValue").doesNotExist());
   }
 }

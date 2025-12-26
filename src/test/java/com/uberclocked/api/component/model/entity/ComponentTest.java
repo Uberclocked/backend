@@ -14,10 +14,11 @@ class ComponentTest {
   void addField_whenValidInput_addsFieldToComponent() {
     Component component = new Component("TC", "Test Component");
 
-    ComponentField newField = component.addField("Test Field", FieldType.STRING, true, null);
+    String fieldName = "Test Field";
+    component.addField(fieldName, FieldType.STRING, true, null);
 
     assertEquals(1, component.getFields().size());
-    assertTrue(component.getFields().contains(newField));
+    assertTrue(component.getFields().containsKey(fieldName));
   }
 
   @Test

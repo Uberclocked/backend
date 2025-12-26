@@ -14,20 +14,13 @@ public class ComponentFieldDtoTest {
 
   @Test
   void validation_whenDtoIsValid_succeeds() {
-    ComponentFieldDto dto = new ComponentFieldDto("Test field", FieldType.STRING, true, null);
+    ComponentFieldDto dto = new ComponentFieldDto(FieldType.STRING, true, null);
     assertTrue(validator.validate(dto).isEmpty());
   }
 
   @Test
-  void validation_whenNameIsEmpty_fails() {
-    ComponentFieldDto dto = new ComponentFieldDto("", FieldType.STRING, true, null);
-    Set<ConstraintViolation<ComponentFieldDto>> violations = validator.validate(dto);
-    assertTrue(violations.stream().anyMatch(v -> v.getPropertyPath().toString().equals("name")));
-  }
-
-  @Test
   void validation_whenTypeIsNull_fails() {
-    ComponentFieldDto dto = new ComponentFieldDto("Test field", null, true, null);
+    ComponentFieldDto dto = new ComponentFieldDto(null, true, null);
     Set<ConstraintViolation<ComponentFieldDto>> violations = validator.validate(dto);
     assertTrue(violations.stream().anyMatch(v -> v.getPropertyPath().toString().equals("type")));
   }

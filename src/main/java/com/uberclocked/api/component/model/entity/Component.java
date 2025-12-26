@@ -8,10 +8,9 @@ import jakarta.persistence.Entity;
 import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.Table;
-import java.util.HashSet;
-import java.util.Iterator;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.NoSuchElementException;
-import java.util.Set;
 
 @Entity
 @Table(name = "component_type")
@@ -25,20 +24,20 @@ public class Component {
 
   @ElementCollection
   @CollectionTable(name = "component_field", joinColumns = @JoinColumn(name = "component_code"))
-  private Set<ComponentField> fields;
+  private Map<String, ComponentField> fields;
 
   protected Component() {
-    this.fields = new HashSet<>();
+    this.fields = new HashMap<>();
   }
 
   public Component(String code, String displayName) {
     this.code = code;
     this.displayName = displayName;
-    this.fields = new HashSet<>();
+    this.fields = new HashMap<>();
   }
 
-  public Set<ComponentField> getFields() {
-    return new HashSet<>(fields);
+  public HashMap<String, ComponentField> getFields() {
+    return new HashMap<>(fields);
   }
 
   public String getCode() {
@@ -50,23 +49,19 @@ public class Component {
   }
 
   public ComponentField removeField(String fieldName) {
-    Iterator<ComponentField> iterator = fields.iterator();
-
-    while (iterator.hasNext()) {
-      ComponentField field = iterator.next();
-      if (field.name().equals(fieldName)) {
-        iterator.remove();
-        return field;
-      }
+    if (!fields.containsKey(fieldName)) {
+      throw new NoSuchElementException("Field with name '%s' not found".formatted(fieldName));
     }
-
-    throw new NoSuchElementException("Field with name '%s' not found".formatted(fieldName));
+    return fields.remove(fieldName);
   }
 
   public ComponentField addField(
       String name, FieldType type, boolean required, String defaultValue) {
-    ComponentField field = new ComponentField(name, type, required, defaultValue);
-    this.fields.add(field);
+    if (fields.containsKey(name)) {
+      throw new IllegalArgumentException("Field with name '%s' already exists".formatted(name));
+    }
+    ComponentField field = new ComponentField(type, required, defaultValue);
+    fields.put(name, field);
     return field;
   }
 }

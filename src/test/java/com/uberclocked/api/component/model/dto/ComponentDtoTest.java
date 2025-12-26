@@ -5,6 +5,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 import jakarta.validation.ConstraintViolation;
 import jakarta.validation.Validation;
 import jakarta.validation.Validator;
+import java.util.Map;
 import java.util.Set;
 import org.junit.jupiter.api.Test;
 
@@ -14,7 +15,7 @@ class ComponentDtoTest {
 
   @Test
   void validation_whenDtoIsValid_succeeds() {
-    ComponentDto dto = new ComponentDto("TC", "Test Name", Set.of());
+    ComponentDto dto = new ComponentDto("TC", "Test Name", Map.of());
 
     Set<ConstraintViolation<ComponentDto>> violations = validator.validate(dto);
 
@@ -23,7 +24,7 @@ class ComponentDtoTest {
 
   @Test
   void validation_whenCodeIsBlank_fails() {
-    ComponentDto dto = new ComponentDto("", "Test Component", Set.of());
+    ComponentDto dto = new ComponentDto("", "Test Component", Map.of());
 
     Set<ConstraintViolation<ComponentDto>> violations = validator.validate(dto);
 
@@ -32,7 +33,7 @@ class ComponentDtoTest {
 
   @Test
   void validation_whenDisplayNameIsBlank_fails() {
-    ComponentDto dto = new ComponentDto("TC", "", Set.of());
+    ComponentDto dto = new ComponentDto("TC", "", Map.of());
 
     Set<ConstraintViolation<ComponentDto>> violations = validator.validate(dto);
 

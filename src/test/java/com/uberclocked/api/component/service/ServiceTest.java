@@ -7,7 +7,7 @@ import com.uberclocked.api.common.exceptions.ResourceAlreadyExistsException;
 import com.uberclocked.api.component.mapper.ComponentMapper;
 import com.uberclocked.api.component.model.dto.ComponentDto;
 import com.uberclocked.api.component.repository.ComponentRepository;
-import java.util.HashSet;
+import java.util.Map;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
@@ -23,7 +23,7 @@ public class ServiceTest {
   @Test
   void create_whenCodeExists_throwsException() {
     String code = "TC";
-    ComponentDto dto = new ComponentDto(code, "Test Component", new HashSet<>());
+    ComponentDto dto = new ComponentDto(code, "Test Component", Map.of());
 
     when(repository.existsByCode(code)).thenReturn(true);
 

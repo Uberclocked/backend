@@ -17,12 +17,13 @@ public interface ComponentMapper {
   @AfterMapping
   default void mapFields(ComponentDto dto, @MappingTarget Component entity) {
     dto.fields()
+        .entrySet()
         .forEach(
-            fieldDto ->
+            entry ->
                 entity.addField(
-                    fieldDto.name(),
-                    fieldDto.type(),
-                    fieldDto.required(),
-                    fieldDto.defaultValue()));
+                    entry.getKey(),
+                    entry.getValue().type(),
+                    entry.getValue().required(),
+                    entry.getValue().defaultValue()));
   }
 }
