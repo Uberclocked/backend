@@ -1,6 +1,7 @@
 package com.uberclocked.api.component.service;
 
 import com.uberclocked.api.common.exceptions.ResourceAlreadyExistsException;
+import com.uberclocked.api.common.exceptions.ResourceDoesNotExistsException;
 import com.uberclocked.api.component.mapper.ComponentMapper;
 import com.uberclocked.api.component.model.dto.ComponentDto;
 import com.uberclocked.api.component.repository.ComponentRepository;
@@ -24,5 +25,13 @@ public class ComponentService {
           "Component with code '" + dto.code() + "' already exists.");
     }
     return mapper.toDto(repository.save(mapper.toEntity(dto)));
+  }
+
+  public void delete(String code) {
+    if (!repository.existsByCode(code)) {
+      throw new ResourceDoesNotExistsException(
+          "Component with code '" + code + "' does not exists.");
+    }
+    repository.deleteById(code);
   }
 }
