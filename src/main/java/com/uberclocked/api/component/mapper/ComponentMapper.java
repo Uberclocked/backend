@@ -17,12 +17,10 @@ public interface ComponentMapper {
 
   @AfterMapping
   default void mapCreateFields(ComponentDto dto, @MappingTarget Component entity) {
-    dto.fields().forEach(
-        (key, value) -> entity.addField(
-            key,
-            value.type(),
-            value.required(),
-            value.defaultValue()));
+    dto.fields()
+        .forEach(
+            (key, value) ->
+                entity.addField(key, value.type(), value.required(), value.defaultValue()));
   }
 
   @Mapping(target = "displayName", ignore = true)
@@ -31,17 +29,17 @@ public interface ComponentMapper {
 
   @AfterMapping
   default void patch(UpdateComponentDto dto, @MappingTarget Component entity) {
-    dto.displayName().ifPresent(entity::setDisplayName);
+    if (dto.displayName() != null) {
+      entity.setDisplayName(dto.displayName());
+    }
 
-    if (dto.fields().isPresent()) {
+    if (dto.fields() != null) {
       entity.clearFields();
       entity.getFields().keySet().forEach(entity::removeField);
-      dto.fields().get().forEach(
-          (key, value) -> entity.addField(
-              key,
-              value.type(),
-              value.required(),
-              value.defaultValue()));
+      dto.fields()
+          .forEach(
+              (key, value) ->
+                  entity.addField(key, value.type(), value.required(), value.defaultValue()));
     }
   }
 }

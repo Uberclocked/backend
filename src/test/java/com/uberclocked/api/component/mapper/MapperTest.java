@@ -1,8 +1,10 @@
 package com.uberclocked.api.component.mapper;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import com.uberclocked.api.component.model.dto.ComponentDto;
+import com.uberclocked.api.component.model.dto.UpdateComponentDto;
 import com.uberclocked.api.component.model.dto.field.ComponentFieldDto;
 import com.uberclocked.api.component.model.entity.Component;
 import com.uberclocked.api.component.model.entity.field.FieldType;
@@ -35,5 +37,20 @@ public class MapperTest {
     Component entity = mapper.toEntity(dto);
     assertEquals(code, entity.getCode());
     assertEquals(displayName, entity.getDisplayName());
+  }
+
+  @Test
+  void update_whenIsValid_modifiesEntity() {
+    String fieldName = "UCF";
+    ComponentFieldDto fieldDto = new ComponentFieldDto(FieldType.STRING, true, null);
+    String name = "Update Test Component";
+    UpdateComponentDto updateNameDto = new UpdateComponentDto(name, null);
+    Component entity = new Component("TC", "Test Componet");
+    mapper.update(updateNameDto, entity);
+    UpdateComponentDto updateFieldsDto = new UpdateComponentDto(null, Map.of(fieldName, fieldDto));
+    mapper.update(updateFieldsDto, entity);
+    assertEquals("TC", entity.getCode());
+    assertEquals(updateNameDto.displayName(), entity.getDisplayName());
+    assertTrue(entity.getFields().containsKey(fieldName));
   }
 }

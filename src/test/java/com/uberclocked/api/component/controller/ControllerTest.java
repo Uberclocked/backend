@@ -1,8 +1,10 @@
 package com.uberclocked.api.component.controller;
 
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.doNothing;
 import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.patch;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
@@ -53,7 +55,28 @@ public class ControllerTest {
   }
 
   @Test
-  void create_whenValid_returns204() throws Exception {
+  void update_whenValid_returs200() throws Exception {
+    String code = "TC";
+    String displayName = "Test Component";
+    ComponentDto dto = new ComponentDto(code, displayName, Map.of());
+
+    when(service.update(any(), any())).thenReturn(dto);
+
+    String requestBody = new ObjectMapper().writeValueAsString(dto);
+
+    mockMvc
+        .perform(
+            patch("/components/" + code)
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(requestBody))
+        .andExpect(status().isOk())
+        .andExpect(jsonPath("$.code").value("TC"))
+        .andExpect(jsonPath("$.displayName").value("Test Component"))
+        .andExpect(jsonPath("$.fields").isMap());
+  }
+
+  @Test
+  void delete_whenValid_returns204() throws Exception {
     String code = "TC";
 
     doNothing().when(service).delete(code);
