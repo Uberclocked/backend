@@ -42,7 +42,7 @@ public class ControllerTest {
     mockMvc
         .perform(post("/components").contentType(MediaType.APPLICATION_JSON).content(requestBody))
         .andExpect(status().isCreated())
-        .andExpect(jsonPath("$.code").value("TC"))
+        .andExpect(jsonPath("$.skuPrefix").value("TC"))
         .andExpect(jsonPath("$.displayName").value("Test Component"))
         .andExpect(jsonPath("$.fields").isMap())
         .andExpect(jsonPath("$.fields['Test Field']").exists())

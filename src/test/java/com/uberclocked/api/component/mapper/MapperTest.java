@@ -19,7 +19,7 @@ public class MapperTest {
     String displayName = "display name";
     Component entity = new Component(code, displayName);
     ComponentDto dto = mapper.toDto(entity);
-    assertEquals(code, dto.code());
+    assertEquals(code, dto.skuPrefix());
     assertEquals(displayName, dto.displayName());
   }
 
@@ -33,7 +33,7 @@ public class MapperTest {
             displayName,
             Map.of("Test Field", new ComponentFieldDto(FieldType.STRING, true, null)));
     Component entity = mapper.toEntity(dto);
-    assertEquals(code, entity.getCode());
+    assertEquals(code, entity.getSkuPrefix());
     assertEquals(displayName, entity.getDisplayName());
   }
 }

@@ -17,15 +17,15 @@ import org.springframework.web.bind.annotation.RestController;
 @RestController
 @RequestMapping("/components")
 public class ComponentController {
-  private ComponentService service;
+  private ComponentService componentService;
 
   public ComponentController(ComponentService service) {
-    this.service = service;
+    this.componentService = service;
   }
 
   @PostMapping
   @ResponseStatus(HttpStatus.CREATED)
   public ComponentDto create(@Valid @RequestBody ComponentDto dto) {
-    return service.create(dto);
+    return componentService.create(dto);
   }
 }
