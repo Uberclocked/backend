@@ -1,6 +1,7 @@
 package com.uberclocked.api.component.controller;
 
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
@@ -49,5 +50,20 @@ class ControllerIntegrationTest {
         .andExpect(jsonPath("$.fields['Test Field'].type").value("STRING"))
         .andExpect(jsonPath("$.fields['Test Field'].required").value(false))
         .andExpect(jsonPath("$.fields['Test Field'].defaultValue").doesNotExist());
+  }
+
+  @Test
+  void delete_whenValid_removesAndReturns204() throws Exception {
+    String code = "TC";
+    ComponentDto dto = new ComponentDto(code, "Test Component", Map.of());
+
+    String requestBody = new ObjectMapper().writeValueAsString(dto);
+    mockMvc.perform(
+        post("/components")
+            .with(csrf())
+            .contentType(MediaType.APPLICATION_JSON)
+            .content(requestBody));
+
+    mockMvc.perform(delete("/components/" + code)).andExpect(status().isNoContent());
   }
 }

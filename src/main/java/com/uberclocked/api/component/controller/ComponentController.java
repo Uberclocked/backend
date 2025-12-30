@@ -4,8 +4,11 @@ import com.uberclocked.api.component.model.dto.ComponentDto;
 import com.uberclocked.api.component.service.ComponentService;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
+import org.apache.logging.log4j.internal.annotation.SuppressFBWarnings;
 import org.springframework.http.HttpStatus;
 import org.springframework.validation.annotation.Validated;
+import org.springframework.web.bind.annotation.DeleteMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -19,6 +22,9 @@ import org.springframework.web.bind.annotation.RestController;
 public class ComponentController {
   private ComponentService service;
 
+  @SuppressFBWarnings(
+      value = "EI_EXPOSE_REP2",
+      justification = "Spring-managed service is injected and intentionally shared")
   public ComponentController(ComponentService service) {
     this.service = service;
   }
@@ -27,5 +33,11 @@ public class ComponentController {
   @ResponseStatus(HttpStatus.CREATED)
   public ComponentDto create(@Valid @RequestBody ComponentDto dto) {
     return service.create(dto);
+  }
+
+  @DeleteMapping("/{code}")
+  @ResponseStatus(HttpStatus.NO_CONTENT)
+  public void delete(@PathVariable("code") String code) {
+    service.delete(code);
   }
 }
