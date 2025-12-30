@@ -13,7 +13,7 @@ import java.util.Map;
 import java.util.NoSuchElementException;
 
 @Entity
-@Table(name = "component_type")
+@Table(name = "component")
 public class Component {
   @Id
   @Column(nullable = false, updatable = false)
