@@ -28,7 +28,8 @@ class ComponentDtoTest {
 
     Set<ConstraintViolation<ComponentDto>> violations = validator.validate(dto);
 
-    assertTrue(violations.stream().anyMatch(v -> v.getPropertyPath().toString().equals("code")));
+    assertTrue(
+        violations.stream().anyMatch(v -> v.getPropertyPath().toString().equals("skuPrefix")));
   }
 
   @Test

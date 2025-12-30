@@ -7,6 +7,7 @@ import jakarta.persistence.ElementCollection;
 import jakarta.persistence.Entity;
 import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
+import jakarta.persistence.MapKeyColumn;
 import jakarta.persistence.Table;
 import java.util.HashMap;
 import java.util.Map;
@@ -23,15 +24,18 @@ public class Component {
   private String displayName;
 
   @ElementCollection
-  @CollectionTable(name = "component_field", joinColumns = @JoinColumn(name = "component_code"))
+  @CollectionTable(
+      name = "component_field",
+      joinColumns = @JoinColumn(name = "component_sku_prefix"))
+  @MapKeyColumn(name = "field_name")
   private Map<String, ComponentField> fields;
 
   protected Component() {
     this.fields = new HashMap<>();
   }
 
-  public Component(String code, String displayName) {
-    this.skuPrefix = code;
+  public Component(String skuPrefix, String displayName) {
+    this.skuPrefix = skuPrefix;
     this.displayName = displayName;
     this.fields = new HashMap<>();
   }

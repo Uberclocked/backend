@@ -25,10 +25,10 @@ public class ServiceJpaTest {
   void create_persistsEntity() {
     String code = "TC";
     ComponentDto dto = new ComponentDto(code, "Test Component", Map.of());
-    when(mapper.toEntity(dto)).thenReturn(new Component(dto.code(), dto.displayName()));
+    when(mapper.toEntity(dto)).thenReturn(new Component(dto.skuPrefix(), dto.displayName()));
 
     service.create(dto);
 
-    assertTrue(repository.existsByCode(code));
+    assertTrue(repository.existsBySkuPrefix(code));
   }
 }
