@@ -30,6 +30,10 @@ public class ComponentService {
   }
 
   public ComponentDto update(UpdateComponentDto dto, String code) {
+    if (!repository.existsByCode(code)) {
+      throw new ResourceDoesNotExistsException(
+          "Component with code '" + code + "' does not exists.");
+    }
     Component entity = repository.getReferenceById(code);
     mapper.update(dto, entity);
     return mapper.toDto(entity);
