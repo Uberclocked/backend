@@ -13,11 +13,11 @@ import java.util.Map;
 import java.util.NoSuchElementException;
 
 @Entity
-@Table(name = "component_type")
+@Table(name = "component")
 public class Component {
   @Id
   @Column(nullable = false, updatable = false)
-  private String code;
+  private String skuPrefix;
 
   @Column(nullable = false)
   private String displayName;
@@ -31,7 +31,7 @@ public class Component {
   }
 
   public Component(String code, String displayName) {
-    this.code = code;
+    this.skuPrefix = code;
     this.displayName = displayName;
     this.fields = new HashMap<>();
   }
@@ -40,8 +40,8 @@ public class Component {
     return new HashMap<>(fields);
   }
 
-  public String getCode() {
-    return code;
+  public String getSkuPrefix() {
+    return skuPrefix;
   }
 
   public void setDisplayName(String displayName) {
