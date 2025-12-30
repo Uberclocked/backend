@@ -21,7 +21,7 @@ public class MapperTest {
     String displayName = "display name";
     Component entity = new Component(code, displayName);
     ComponentDto dto = mapper.toDto(entity);
-    assertEquals(code, dto.code());
+    assertEquals(code, dto.skuPrefix());
     assertEquals(displayName, dto.displayName());
   }
 
@@ -29,10 +29,11 @@ public class MapperTest {
   void toEntity_whenDtoProvided_mapsAllFields() {
     String code = "code";
     String displayName = "display name";
-    ComponentDto dto = new ComponentDto(
-        code,
-        displayName,
-        Map.of("Test Field", new ComponentFieldDto(FieldType.STRING, true, null)));
+    ComponentDto dto =
+        new ComponentDto(
+            code,
+            displayName,
+            Map.of("Test Field", new ComponentFieldDto(FieldType.STRING, true, null)));
     Component entity = mapper.toEntity(dto);
     assertEquals(code, entity.getSkuPrefix());
     assertEquals(displayName, entity.getDisplayName());

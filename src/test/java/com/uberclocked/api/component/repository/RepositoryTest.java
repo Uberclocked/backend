@@ -16,6 +16,6 @@ public class RepositoryTest {
     String code = "TC";
     Component component = new Component(code, "Test Component");
     repository.save(component);
-    assertTrue(repository.existsByCode(code));
+    assertTrue(repository.existsBySkuPrefix(code));
   }
 }

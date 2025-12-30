@@ -21,37 +21,39 @@ import org.springframework.context.annotation.Import;
 @ComponentScan(basePackageClasses = ComponentMapper.class)
 @Import(ComponentService.class)
 class ServiceJpaTest {
-  @Autowired ComponentService service;
-  @Autowired ComponentRepository repository;
+  @Autowired
+  ComponentService service;
+  @Autowired
+  ComponentRepository repository;
 
   @Test
   void create_persistsEntity() {
-    String code = "TC";
-    ComponentDto dto = new ComponentDto(code, "Test Component", Map.of());
+    String skuPrefix = "TC";
+    ComponentDto dto = new ComponentDto(skuPrefix, "Test Component", Map.of());
     service.create(dto);
-    assertTrue(repository.existsByCode(code));
+    assertTrue(repository.existsBySkuPrefix(skuPrefix));
   }
 
   @Test
   void update_modifiesEntity() {
-    String code = "TC";
+    String skuPrefix = "TC";
     String name = "UTC";
     Map<String, ComponentFieldDto> fields = new HashMap<>();
     UpdateComponentDto updateDto = new UpdateComponentDto(name, fields);
-    ComponentDto createDto = new ComponentDto(code, name, fields);
+    ComponentDto createDto = new ComponentDto(skuPrefix, name, fields);
     service.create(createDto);
-    ComponentDto resultDto = service.update(updateDto, code);
-    assertEquals(code, resultDto.code());
+    ComponentDto resultDto = service.update(updateDto, skuPrefix);
+    assertEquals(skuPrefix, resultDto.skuPrefix());
     assertEquals(updateDto.displayName(), resultDto.displayName());
     assertEquals(updateDto.fields(), resultDto.fields());
   }
 
   @Test
   void delete_removesEntity() {
-    String code = "TC";
-    ComponentDto dto = new ComponentDto(code, "Test Component", Map.of());
+    String skuPrefix = "TC";
+    ComponentDto dto = new ComponentDto(skuPrefix, "Test Component", Map.of());
     service.create(dto);
-    service.delete(code);
-    assertFalse(repository.existsByCode(code));
+    service.delete(skuPrefix);
+    assertFalse(repository.existsBySkuPrefix(skuPrefix));
   }
 }

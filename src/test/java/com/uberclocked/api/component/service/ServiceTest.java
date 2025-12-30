@@ -31,7 +31,7 @@ public class ServiceTest {
     String code = "TC";
     ComponentDto dto = new ComponentDto(code, "Test Component", Map.of());
 
-    when(repository.existsByCode(code)).thenReturn(true);
+    when(repository.existsBySkuPrefix(code)).thenReturn(true);
 
     assertThrows(ResourceAlreadyExistsException.class, () -> service.create(dto));
   }

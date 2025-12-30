@@ -22,9 +22,9 @@ public class ComponentService {
   }
 
   public ComponentDto create(ComponentDto dto) {
-    if (repository.existsByCode(dto.code())) {
+    if (repository.existsBySkuPrefix(dto.skuPrefix())) {
       throw new ResourceAlreadyExistsException(
-          "Component with code '" + dto.code() + "' already exists.");
+          "Component with code '" + dto.skuPrefix() + "' already exists.");
     }
     return mapper.toDto(repository.save(mapper.toEntity(dto)));
   }

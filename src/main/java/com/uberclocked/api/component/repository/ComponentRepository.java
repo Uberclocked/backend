@@ -6,5 +6,5 @@ import org.springframework.stereotype.Repository;
 
 @Repository
 public interface ComponentRepository extends JpaRepository<Component, String> {
-  boolean existsByCode(String code);
+  boolean existsBySkuPrefix(String skuPrefix);
 }

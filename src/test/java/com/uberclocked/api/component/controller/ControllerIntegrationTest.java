@@ -54,7 +54,7 @@ class ControllerIntegrationTest {
                 .content(requestBody))
         .andExpect(status().isCreated())
         .andExpect(content().contentTypeCompatibleWith(MediaType.APPLICATION_JSON))
-        .andExpect(jsonPath("$.code").value("TC"))
+        .andExpect(jsonPath("$.skuPrefix").value("TC"))
         .andExpect(jsonPath("$.displayName").value("Test Component"))
         .andExpect(jsonPath("$.fields").isMap())
         .andExpect(jsonPath("$.fields['Test Field']").exists())
