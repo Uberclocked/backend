@@ -38,11 +38,11 @@ public class ServiceTest {
 
   @Test
   void delete_whenCodeDoesntExists_throwsException() {
-    String code = "TC";
+    String skuPrefix = "TC";
 
-    when(repository.existsByCode(code)).thenReturn(false);
+    when(repository.existsBySkuPrefix(skuPrefix)).thenReturn(false);
 
-    assertThrows(ResourceDoesNotExistsException.class, () -> service.delete(code));
+    assertThrows(ResourceDoesNotExistsException.class, () -> service.delete(skuPrefix));
     verify(repository, never()).deleteById(any());
   }
 }

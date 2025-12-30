@@ -41,12 +41,12 @@ public class ComponentController {
   @ResponseStatus(HttpStatus.OK)
   public ComponentDto update(
       @RequestBody UpdateComponentDto dto, @PathVariable("code") String code) {
-    return service.update(dto, code);
+    return componentService.update(dto, code);
   }
 
   @DeleteMapping("/{code}")
   @ResponseStatus(HttpStatus.NO_CONTENT)
   public void delete(@PathVariable("code") String code) {
-    service.delete(code);
+    componentService.delete(code);
   }
 }

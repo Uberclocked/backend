@@ -70,7 +70,7 @@ public class ControllerTest {
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(requestBody))
         .andExpect(status().isOk())
-        .andExpect(jsonPath("$.code").value("TC"))
+        .andExpect(jsonPath("$.skuPrefix").value("TC"))
         .andExpect(jsonPath("$.displayName").value("Test Component"))
         .andExpect(jsonPath("$.fields").isMap());
   }

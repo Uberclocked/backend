@@ -30,7 +30,7 @@ public class ComponentService {
   }
 
   public ComponentDto update(UpdateComponentDto dto, String code) {
-    if (!repository.existsByCode(code)) {
+    if (!repository.existsBySkuPrefix(code)) {
       throw new ResourceDoesNotExistsException(
           "Component with code '" + code + "' does not exists.");
     }
@@ -40,7 +40,7 @@ public class ComponentService {
   }
 
   public void delete(String code) {
-    if (!repository.existsByCode(code)) {
+    if (!repository.existsBySkuPrefix(code)) {
       throw new ResourceDoesNotExistsException(
           "Component with code '" + code + "' does not exists.");
     }

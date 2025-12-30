@@ -79,7 +79,7 @@ class ControllerIntegrationTest {
                 .content(updateBody))
         .andExpect(status().isOk())
         .andExpect(content().contentTypeCompatibleWith(MediaType.APPLICATION_JSON))
-        .andExpect(jsonPath("$.code").value(code))
+        .andExpect(jsonPath("$.skuPrefix").value(code))
         .andExpect(jsonPath("$.displayName").value(name))
         .andExpect(jsonPath("$.fields").isMap());
   }

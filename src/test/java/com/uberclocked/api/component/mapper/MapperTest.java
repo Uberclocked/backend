@@ -49,7 +49,7 @@ public class MapperTest {
     mapper.update(updateNameDto, entity);
     UpdateComponentDto updateFieldsDto = new UpdateComponentDto(null, Map.of(fieldName, fieldDto));
     mapper.update(updateFieldsDto, entity);
-    assertEquals("TC", entity.getCode());
+    assertEquals("TC", entity.getSkuPrefix());
     assertEquals(updateNameDto.displayName(), entity.getDisplayName());
     assertTrue(entity.getFields().containsKey(fieldName));
   }

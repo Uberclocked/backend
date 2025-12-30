@@ -21,10 +21,8 @@ import org.springframework.context.annotation.Import;
 @ComponentScan(basePackageClasses = ComponentMapper.class)
 @Import(ComponentService.class)
 class ServiceJpaTest {
-  @Autowired
-  ComponentService service;
-  @Autowired
-  ComponentRepository repository;
+  @Autowired ComponentService service;
+  @Autowired ComponentRepository repository;
 
   @Test
   void create_persistsEntity() {
