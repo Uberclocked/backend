@@ -7,31 +7,35 @@ import jakarta.persistence.ElementCollection;
 import jakarta.persistence.Entity;
 import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
+import jakarta.persistence.MapKeyColumn;
 import jakarta.persistence.Table;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.NoSuchElementException;
 
 @Entity
-@Table(name = "component_type")
+@Table(name = "component")
 public class Component {
   @Id
   @Column(nullable = false, updatable = false)
-  private String code;
+  private String skuPrefix;
 
   @Column(nullable = false)
   private String displayName;
 
   @ElementCollection
-  @CollectionTable(name = "component_field", joinColumns = @JoinColumn(name = "component_code"))
+  @CollectionTable(
+      name = "component_field",
+      joinColumns = @JoinColumn(name = "component_sku_prefix"))
+  @MapKeyColumn(name = "field_name")
   private Map<String, ComponentField> fields;
 
   protected Component() {
     this.fields = new HashMap<>();
   }
 
-  public Component(String code, String displayName) {
-    this.code = code;
+  public Component(String skuPrefix, String displayName) {
+    this.skuPrefix = skuPrefix;
     this.displayName = displayName;
     this.fields = new HashMap<>();
   }
@@ -40,8 +44,12 @@ public class Component {
     return new HashMap<>(fields);
   }
 
-  public String getCode() {
-    return code;
+  public String getSkuPrefix() {
+    return skuPrefix;
+  }
+
+  public void setDisplayName(String displayName) {
+    this.displayName = displayName;
   }
 
   public String getDisplayName() {
@@ -63,5 +71,9 @@ public class Component {
     ComponentField field = new ComponentField(type, required, defaultValue);
     fields.put(name, field);
     return field;
+  }
+
+  public void clearFields() {
+    this.fields = new HashMap<>();
   }
 }

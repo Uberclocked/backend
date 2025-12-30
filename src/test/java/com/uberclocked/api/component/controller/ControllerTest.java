@@ -1,7 +1,10 @@
 package com.uberclocked.api.component.controller;
 
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.doNothing;
 import static org.mockito.Mockito.when;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.patch;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
@@ -35,19 +38,51 @@ public class ControllerTest {
     ComponentFieldDto fieldDto = new ComponentFieldDto(FieldType.STRING, false, null);
     ComponentDto dto = new ComponentDto("TC", "Test Component", Map.of(fieldName, fieldDto));
 
-    when(service.create(any())).thenReturn(dto);
+    when(service.create(dto)).thenReturn(dto);
 
     String requestBody = new ObjectMapper().writeValueAsString(dto);
 
     mockMvc
         .perform(post("/components").contentType(MediaType.APPLICATION_JSON).content(requestBody))
         .andExpect(status().isCreated())
-        .andExpect(jsonPath("$.code").value("TC"))
+        .andExpect(jsonPath("$.skuPrefix").value("TC"))
         .andExpect(jsonPath("$.displayName").value("Test Component"))
         .andExpect(jsonPath("$.fields").isMap())
         .andExpect(jsonPath("$.fields['Test Field']").exists())
         .andExpect(jsonPath("$.fields['Test Field'].type").value("STRING"))
         .andExpect(jsonPath("$.fields['Test Field'].required").value(false))
         .andExpect(jsonPath("$.fields['Test Field'].defaultValue").doesNotExist());
+  }
+
+  @Test
+  void update_whenValid_returs200() throws Exception {
+    String code = "TC";
+    String displayName = "Test Component";
+    ComponentDto dto = new ComponentDto(code, displayName, Map.of());
+
+    when(service.update(any(), any())).thenReturn(dto);
+
+    String requestBody = new ObjectMapper().writeValueAsString(dto);
+
+    mockMvc
+        .perform(
+            patch("/components/" + code)
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(requestBody))
+        .andExpect(status().isOk())
+        .andExpect(jsonPath("$.skuPrefix").value("TC"))
+        .andExpect(jsonPath("$.displayName").value("Test Component"))
+        .andExpect(jsonPath("$.fields").isMap());
+  }
+
+  @Test
+  void delete_whenValid_returns204() throws Exception {
+    String code = "TC";
+
+    doNothing().when(service).delete(code);
+
+    mockMvc
+        .perform(delete("/components/" + code).contentType(MediaType.APPLICATION_JSON))
+        .andExpect(status().isNoContent());
   }
 }

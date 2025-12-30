@@ -8,7 +8,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 public record ComponentDto(
-    @NotBlank String code,
+    @NotBlank String skuPrefix,
     @NotBlank String displayName,
     @NotNull @Valid Map<String, ComponentFieldDto> fields) {
   public ComponentDto {

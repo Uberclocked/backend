@@ -11,7 +11,7 @@ import org.junit.jupiter.api.Test;
 class ComponentTest {
 
   @Test
-  void addField_whenValidInput_addsFieldToComponent() {
+  void addField_whenFieldIsNotAdded_addsFieldToComponent() {
     Component component = new Component("TC", "Test Component");
 
     String fieldName = "Test Field";
@@ -19,6 +19,18 @@ class ComponentTest {
 
     assertEquals(1, component.getFields().size());
     assertTrue(component.getFields().containsKey(fieldName));
+  }
+
+  @Test
+  void addField_whenFieldIsAdded_throwsException() {
+    Component component = new Component("TC", "Test Component");
+
+    String fieldName = "Test Field";
+    component.addField(fieldName, FieldType.STRING, true, null);
+
+    assertThrows(
+        IllegalArgumentException.class,
+        () -> component.addField(fieldName, FieldType.STRING, true, null));
   }
 
   @Test
