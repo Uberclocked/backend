@@ -1,4 +1,4 @@
-package com.uberclocked.api.users;
+package com.uberclocked.api.users.model.entity;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;

@@ -1,18 +1,27 @@
 package com.uberclocked.api.users.service;
 
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertSame;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.*;
+import static org.mockito.Mockito.doAnswer;
+import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
-import com.uberclocked.api.users.User;
-import com.uberclocked.api.users.UsersRepository;
-import com.uberclocked.api.users.UsersService;
+import com.uberclocked.api.common.exceptions.ResourceDoesNotExistsException;
+import com.uberclocked.api.users.mapper.UserMapper;
+import com.uberclocked.api.users.model.dto.UserDataDto;
+import com.uberclocked.api.users.model.entity.User;
+import com.uberclocked.api.users.repository.UsersRepository;
 import java.time.Instant;
 import java.util.Map;
 import java.util.Optional;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
-import org.mockito.*;
+import org.mockito.InjectMocks;
+import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.security.oauth2.jwt.Jwt;
 
@@ -20,6 +29,8 @@ import org.springframework.security.oauth2.jwt.Jwt;
 class UsersServiceTest {
 
   @Mock UsersRepository repository;
+
+  @Mock UserMapper mapper;
 
   @InjectMocks UsersService service;
 
@@ -33,18 +44,21 @@ class UsersServiceTest {
   }
 
   @Test
-  void create_whenAuth0IdExists_returnsExisting_andDoesNotSave() {
+  void create_whenAuth0IdExists_returnsExisting_andSavesLastLogin() {
     String auth0Id = "auth0|existing";
     Jwt jwt = jwt(auth0Id, "existing@mail.com", "Existing");
 
-    User existingUser = new User(auth0Id, "existing@mail.com", "Existing");
+    User existingUser = new User(auth0Id, "Existing", "existing@mail.com");
 
     when(repository.findByAuth0Id(auth0Id)).thenReturn(Optional.of(existingUser));
+    when(repository.save(any(User.class))).thenAnswer(inv -> inv.getArgument(0));
 
     User result = service.create(jwt);
 
-    assertEquals(existingUser, result);
-    verify(repository, never()).save(any());
+    assertNotNull(result);
+    assertSame(existingUser, result);
+    verify(repository).save(existingUser);
+    verify(repository).findByAuth0Id(auth0Id);
   }
 
   @Test
@@ -53,19 +67,62 @@ class UsersServiceTest {
     Jwt jwt = jwt(auth0Id, "new@mail.com", "New User");
 
     when(repository.findByAuth0Id(auth0Id)).thenReturn(Optional.empty());
-
-    ArgumentCaptor<User> captor = ArgumentCaptor.forClass(User.class);
     when(repository.save(any(User.class))).thenAnswer(inv -> inv.getArgument(0));
 
     User result = service.create(jwt);
 
-    verify(repository).save(captor.capture());
-    User saved = captor.getValue();
+    assertNotNull(result);
+    assertEquals(auth0Id, result.getAuth0Id());
+    assertEquals("new@mail.com", result.getEmail());
+    assertEquals("New User", result.getUserName());
+    assertNotNull(result.getLastLogin());
+  }
+
+  @Test
+  void update_whenUserExists_updatesAndSaves() {
+    doAnswer(
+            inv -> {
+              UserDataDto dto = inv.getArgument(0);
+              User entity = inv.getArgument(1);
+
+              if (dto.userName() != null) entity.setUserName(dto.userName());
+              if (dto.email() != null) entity.setEmail(dto.email());
+              if (dto.country() != null) entity.setCountry(dto.country());
+              if (dto.cellPhone() != null) entity.setCellPhone(dto.cellPhone());
+
+              return null;
+            })
+        .when(mapper)
+        .update(any(UserDataDto.class), any(User.class));
+
+    String auth0Id = "auth0|123";
+    Jwt jwt = jwt(auth0Id, "mail@test.com", "Original");
+
+    User user = new User(auth0Id, "Original", "mail@test.com");
+    when(repository.findByAuth0Id(auth0Id)).thenReturn(Optional.of(user));
+    when(repository.save(any(User.class))).thenAnswer(inv -> inv.getArgument(0));
+
+    UserDataDto dto = new UserDataDto("Nuevo", null, "UY", null);
+
+    User result = service.updateData(jwt, dto);
+
+    verify(mapper).update(dto, user);
+    verify(repository).save(user);
 
     assertNotNull(result);
-    assertEquals(auth0Id, saved.getAuth0Id());
-    assertEquals("new@mail.com", saved.getEmail());
-    assertEquals("New User", saved.getUserName());
-    assertNotNull(saved.getLastLogin());
+    assertEquals("Nuevo", result.getUserName());
+    assertEquals("mail@test.com", result.getEmail());
+    assertEquals("UY", result.getCountry());
+  }
+
+  @Test
+  void update_whenUserMissing_throwsException() {
+    Jwt jwt = jwt("auth0|missing", "x@mail.com", "X");
+    when(repository.findByAuth0Id("auth0|missing")).thenReturn(Optional.empty());
+
+    UserDataDto dto = new UserDataDto("Name", null, null, null);
+
+    assertThrows(ResourceDoesNotExistsException.class, () -> service.updateData(jwt, dto));
+    verify(repository, never()).save(any());
   }
 }

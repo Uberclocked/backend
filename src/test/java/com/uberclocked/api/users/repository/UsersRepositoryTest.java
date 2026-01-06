@@ -3,8 +3,7 @@ package com.uberclocked.api.users.repository;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
-import com.uberclocked.api.users.User;
-import com.uberclocked.api.users.UsersRepository;
+import com.uberclocked.api.users.model.entity.User;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.data.jpa.test.autoconfigure.DataJpaTest;

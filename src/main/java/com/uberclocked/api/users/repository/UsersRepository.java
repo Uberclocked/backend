@@ -1,5 +1,6 @@
-package com.uberclocked.api.users;
+package com.uberclocked.api.users.repository;
 
+import com.uberclocked.api.users.model.entity.User;
 import java.util.Optional;
 import java.util.UUID;
 import org.springframework.data.jpa.repository.JpaRepository;
