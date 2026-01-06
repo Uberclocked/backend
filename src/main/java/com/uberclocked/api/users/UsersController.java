@@ -10,16 +10,20 @@ import org.springframework.web.bind.annotation.RestController;
 @RequestMapping("/me")
 public class UsersController {
 
-    private final UsersService usersService;
+  private final UsersService usersService;
 
-    public UsersController(UsersService usersService){
-        this.usersService = usersService;
-    }
+  public UsersController(UsersService usersService) {
+    this.usersService = usersService;
+  }
 
-    @PostMapping()
-    public UserDataDto createUser(@AuthenticationPrincipal Jwt jwt){
+  @PostMapping()
+  public UserDataDto createUser(@AuthenticationPrincipal Jwt jwt) {
 
-        User user = usersService.create(jwt);
-        return new UserDataDto(user.getUserName(),user.getEmail(),user.getCountry() == null ? "" : user.getCountry(),user.getCellPhone() == null ? "" : user.getCellPhone());
-    }
+    User user = usersService.create(jwt);
+    return new UserDataDto(
+        user.getUserName(),
+        user.getEmail(),
+        user.getCountry() == null ? "" : user.getCountry(),
+        user.getCellPhone() == null ? "" : user.getCellPhone());
+  }
 }

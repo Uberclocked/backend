@@ -7,45 +7,47 @@ import jakarta.persistence.Enumerated;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
+import jakarta.persistence.Table;
+import java.time.LocalDateTime;
+import java.util.UUID;
 import lombok.Getter;
 import lombok.Setter;
 
-import java.time.LocalDateTime;
-import java.util.UUID;
-
 @Getter
 @Entity
+@Table(name = "users")
 public class User {
 
-    @Id
-    @GeneratedValue(strategy = GenerationType.UUID)
-    private UUID id;
+  @Id
+  @GeneratedValue(strategy = GenerationType.UUID)
+  private UUID id;
 
-    @Column(nullable = false, unique = true, updatable = false)
-    private String auth0Id;
+  @Column(nullable = false, unique = true, updatable = false)
+  private String auth0Id;
 
-    @Column(nullable = false, unique = true)
-    private String userName;
+  @Setter
+  @Column(nullable = false, unique = true)
+  private String userName;
 
-    @Column(nullable = false, unique = true)
-    private String email;
+  @Setter
+  @Column(nullable = false, unique = true)
+  private String email;
 
-    @Setter
-    private LocalDateTime lastLogin;
+  @Setter private LocalDateTime lastLogin;
 
-    private String country;
+  @Setter private String country;
 
-    private String cellPhone;
+  @Setter private String cellPhone;
 
-    @Setter
-    @Enumerated(EnumType.STRING)
-    private UserStatus userStatus;
+  @Setter
+  @Enumerated(EnumType.STRING)
+  private UserStatus userStatus;
 
-    public User(){}
+  public User() {}
 
-    public User(String subject, String userName, String email){
-        this.auth0Id = subject;
-        this.userName = userName;
-        this.email = email;
-    }
+  public User(String subject, String userName, String email) {
+    this.auth0Id = subject;
+    this.userName = userName;
+    this.email = email;
+  }
 }
