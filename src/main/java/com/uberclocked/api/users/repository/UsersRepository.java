@@ -10,4 +10,6 @@ import org.springframework.stereotype.Repository;
 public interface UsersRepository extends JpaRepository<User, UUID> {
 
   Optional<User> findByAuth0Id(String auth0Id);
+
+  void deleteByAuth0Id(String auth0Id);
 }

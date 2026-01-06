@@ -1,9 +1,12 @@
 package com.uberclocked.api.users.controller;
 
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.doNothing;
+import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.jwt;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.patch;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
@@ -129,5 +132,16 @@ class UsersControllerTest {
         .andExpect(status().isOk())
         .andExpect(jsonPath("$.country").value("AR"))
         .andExpect(jsonPath("$.cellPhone").value("+54 11 1234-5678"));
+  }
+
+  @Test
+  void deleteUser_whenExists_returns204_andCallsService() throws Exception {
+    doNothing().when(usersService).delete(any());
+
+    mockMvc
+        .perform(delete("/me").with(csrf()).with(jwt().jwt(j -> j.subject("auth0|123"))))
+        .andExpect(status().isNoContent());
+
+    verify(usersService).delete(any());
   }
 }

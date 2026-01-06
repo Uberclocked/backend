@@ -85,4 +85,20 @@ class UsersServiceJpaTest {
 
     assertThrows(ResourceDoesNotExistsException.class, () -> service.updateData(jwt, dto));
   }
+
+  @Test
+  void deleteByAuth0Id_whenUserExists_deletesRow() {
+    String auth0Id = "auth0|123";
+    repository.save(new User(auth0Id, "Santino", "santino@mail.com"));
+
+    repository.deleteByAuth0Id(auth0Id);
+
+    assertTrue(repository.findByAuth0Id(auth0Id).isEmpty());
+  }
+
+  @Test
+  void deleteByAuth0Id_whenMissing_doesNothing() {
+    repository.deleteByAuth0Id("auth0|missing");
+    assertEquals(0, repository.count());
+  }
 }

@@ -125,4 +125,31 @@ class UsersServiceTest {
     assertThrows(ResourceDoesNotExistsException.class, () -> service.updateData(jwt, dto));
     verify(repository, never()).save(any());
   }
+
+  @Test
+  void delete_whenUserExists_callsDeleteByAuth0Id() {
+    String auth0Id = "auth0|me";
+    Jwt jwt = jwt(auth0Id, "", "");
+
+    when(repository.findByAuth0Id(auth0Id))
+        .thenReturn(Optional.of(new User(auth0Id, "Santino", "santino@mail.com")));
+
+    service.delete(jwt);
+
+    verify(repository).findByAuth0Id(auth0Id);
+    verify(repository).deleteByAuth0Id(auth0Id);
+  }
+
+  @Test
+  void delete_whenMissing_throws_andDoesNotDelete() {
+    String auth0Id = "auth0|missing";
+    Jwt jwt = jwt(auth0Id, "", "");
+
+    when(repository.findByAuth0Id(auth0Id)).thenReturn(Optional.empty());
+
+    assertThrows(ResourceDoesNotExistsException.class, () -> service.delete(jwt));
+
+    verify(repository).findByAuth0Id(auth0Id);
+    verify(repository, never()).deleteByAuth0Id(any());
+  }
 }

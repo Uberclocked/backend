@@ -2,6 +2,7 @@ package com.uberclocked.api.users.controller;
 
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.jwt;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.patch;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
@@ -106,10 +107,10 @@ class UsersControllerIntegrationTest {
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(
                     """
-                    {
-                      "country": "UY"
-                    }
-                    """))
+                                            {
+                                              "country": "UY"
+                                            }
+                                            """))
         .andExpect(status().isOk())
         .andExpect(content().contentTypeCompatibleWith(MediaType.APPLICATION_JSON))
         .andExpect(jsonPath("$.country").value("UY"))
@@ -140,13 +141,13 @@ class UsersControllerIntegrationTest {
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(
                     """
-                    {
-                      "userName": "New Name",
-                      "email": "new@mail.com",
-                      "country": "BR",
-                      "cellPhone": "222"
-                    }
-                    """))
+                                            {
+                                              "userName": "New Name",
+                                              "email": "new@mail.com",
+                                              "country": "BR",
+                                              "cellPhone": "222"
+                                            }
+                                            """))
         .andExpect(status().isOk())
         .andExpect(jsonPath("$.userName").value("New Name"))
         .andExpect(jsonPath("$.email").value("new@mail.com"))
@@ -158,5 +159,19 @@ class UsersControllerIntegrationTest {
     Assertions.assertEquals("new@mail.com", updated.getEmail());
     Assertions.assertEquals("BR", updated.getCountry());
     Assertions.assertEquals("222", updated.getCellPhone());
+  }
+
+  @Test
+  void deleteUser_whenExists_deletesAndReturns204() throws Exception {
+    User user = new User("auth0|me", "Old Name", "old@mail.com");
+    user.setCountry("AR");
+    usersRepository.save(user);
+
+    mockMvc
+        .perform(delete("/me").with(csrf()).with(jwt().jwt(j -> j.subject("auth0|me"))))
+        .andExpect(status().isNoContent());
+
+    Assertions.assertEquals(0, usersRepository.count());
+    Assertions.assertTrue(usersRepository.findByAuth0Id("auth0|me").isEmpty());
   }
 }

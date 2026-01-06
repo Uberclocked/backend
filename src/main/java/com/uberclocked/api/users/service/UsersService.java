@@ -5,6 +5,7 @@ import com.uberclocked.api.users.mapper.UserMapper;
 import com.uberclocked.api.users.model.dto.UserDataDto;
 import com.uberclocked.api.users.model.entity.User;
 import com.uberclocked.api.users.repository.UsersRepository;
+import jakarta.transaction.Transactional;
 import java.time.LocalDateTime;
 import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.stereotype.Service;
@@ -42,5 +43,15 @@ public class UsersService {
 
     mapper.update(dataDto, user);
     return usersRepository.save(user);
+  }
+
+  @Transactional
+  public void delete(Jwt jwt) {
+    String auth0Id = jwt.getSubject();
+    boolean exists = usersRepository.findByAuth0Id(auth0Id).isPresent();
+    if (!exists) {
+      throw new ResourceDoesNotExistsException("User does not exist.");
+    }
+    usersRepository.deleteByAuth0Id(auth0Id);
   }
 }
