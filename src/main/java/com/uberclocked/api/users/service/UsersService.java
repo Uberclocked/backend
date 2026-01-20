@@ -1,5 +1,6 @@
 package com.uberclocked.api.users.service;
 
+import com.nimbusds.jwt.JWT;
 import com.uberclocked.api.common.exceptions.ResourceDoesNotExistsException;
 import com.uberclocked.api.users.mapper.UserMapper;
 import com.uberclocked.api.users.model.dto.UserDataDto;
@@ -33,6 +34,16 @@ public class UsersService {
     User newUser = new User(auth0Id, name, email);
     newUser.setLastLogin(LocalDateTime.now());
     return usersRepository.save(newUser);
+  }
+
+  public User getUser(Jwt jwt){
+    String userId = jwt.getSubject();
+    User user = usersRepository.findByAuth0Id(userId).orElse(null);
+    if (user != null) {
+      user.setLastLogin(LocalDateTime.now());
+      return usersRepository.save(user);
+    }
+    throw new ResourceDoesNotExistsException("User not exist");
   }
 
   public User updateData(Jwt jwt, UserDataDto dataDto) {

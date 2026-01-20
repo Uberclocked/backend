@@ -8,6 +8,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.web.bind.annotation.DeleteMapping;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -25,6 +26,12 @@ public class UsersController {
   public UsersController(UsersService usersService, UserMapper mapper) {
     this.usersService = usersService;
     this.mapper = mapper;
+  }
+
+  @GetMapping
+  public UserDataDto getMe(@AuthenticationPrincipal Jwt jwt) {
+    User user = usersService.getUser(jwt);
+    return mapper.toDto(user);
   }
 
   @PostMapping()
