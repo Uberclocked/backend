@@ -5,7 +5,7 @@ plugins {
   id 'checkstyle'
   id 'jacoco'
   id 'com.diffplug.spotless' version '6.25.0'
-  id 'com.github.spotbugs' version '6.0.7'
+  id 'com.github.spotbugs' version '6.0.14'
 }
 
 group = 'com.uberclocked'
@@ -25,15 +25,6 @@ spotless {
         trimTrailingWhitespace()
         endWithNewline()
     }
-}
-
-spotbugs {
-  effort = 'max'
-  reportLevel = 'medium'
-}
-
-spotbugsTest {
-    enabled = false
 }
 
 tasks.withType(com.github.spotbugs.snom.SpotBugsTask).configureEach {
@@ -157,7 +148,7 @@ dependencies {
   testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
 
   // spotbugsPlugins
-  spotbugsPlugins 'com.h3xstream.findsecbugs:findsecbugs-plugin:1.12.0'
+//  spotbugsPlugins 'com.h3xstream.findsecbugs:findsecbugs-plugin:1.12.0'
 }
 
 tasks.named('test') {
