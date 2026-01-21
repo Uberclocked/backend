@@ -21,7 +21,7 @@ public class UsersService {
     this.mapper = mapper;
   }
 
-  public User create(Jwt jwt) {
+  private User create(Jwt jwt) {
     String auth0Id = jwt.getSubject();
     User user = usersRepository.findByAuth0Id(auth0Id).orElse(null);
     if (user != null) {
@@ -35,14 +35,14 @@ public class UsersService {
     return usersRepository.save(newUser);
   }
 
-  public User getUser(Jwt jwt) {
+  public User getUserOrCreate(Jwt jwt) {
     String userId = jwt.getSubject();
     User user = usersRepository.findByAuth0Id(userId).orElse(null);
     if (user != null) {
       user.setLastLogin(LocalDateTime.now());
       return usersRepository.save(user);
     }
-    throw new ResourceDoesNotExistsException("User not exist");
+    return create(jwt);
   }
 
   public User updateData(Jwt jwt, UserDataDto dataDto) {

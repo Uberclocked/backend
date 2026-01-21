@@ -40,7 +40,7 @@ class UsersServiceJpaTest {
     String auth0Id = "auth0|new";
     Jwt jwt = jwt(auth0Id, "new@mail.com", "New User");
 
-    User created = service.create(jwt);
+    User created = service.getUserOrCreate(jwt);
 
     assertNotNull(created);
     assertEquals(1, repository.count());
@@ -53,10 +53,10 @@ class UsersServiceJpaTest {
     String auth0Id = "auth0|same";
     Jwt jwt = jwt(auth0Id, "same@mail.com", "Same User");
 
-    service.create(jwt);
+    service.getUserOrCreate(jwt);
     assertEquals(1, repository.count());
 
-    service.create(jwt);
+    service.getUserOrCreate(jwt);
     assertEquals(1, repository.count());
   }
 
@@ -65,7 +65,7 @@ class UsersServiceJpaTest {
     String auth0Id = "auth0|upd";
     Jwt jwt = jwt(auth0Id, "mail@test.com", "Original");
 
-    service.create(jwt);
+    service.getUserOrCreate(jwt);
 
     UserDataDto dto = new UserDataDto("Nuevo Nombre", null, "AR", null);
 

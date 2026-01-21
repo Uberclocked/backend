@@ -1,0 +1,13 @@
+services:
+  db:
+    image: postgres:alpine
+    container_name: UberClocked-db
+    ports:
+      - "${DATABASE_PORT}:5432"
+    env_file:
+      - .env
+    volumes:
+      - db:/var/lib/postgresql/data
+
+volumes:
+  db:

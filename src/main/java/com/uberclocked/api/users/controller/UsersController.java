@@ -30,13 +30,7 @@ public class UsersController {
 
   @GetMapping
   public UserDataDto getMe(@AuthenticationPrincipal Jwt jwt) {
-    User user = usersService.getUser(jwt);
-    return mapper.toDto(user);
-  }
-
-  @PostMapping()
-  public UserDataDto createUser(@AuthenticationPrincipal Jwt jwt) {
-    User user = usersService.create(jwt);
+    User user = usersService.getUserOrCreate(jwt);
     return mapper.toDto(user);
   }
 

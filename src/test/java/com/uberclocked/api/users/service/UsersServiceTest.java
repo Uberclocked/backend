@@ -53,7 +53,7 @@ class UsersServiceTest {
     when(repository.findByAuth0Id(auth0Id)).thenReturn(Optional.of(existingUser));
     when(repository.save(any(User.class))).thenAnswer(inv -> inv.getArgument(0));
 
-    User result = service.create(jwt);
+    User result = service.getUserOrCreate(jwt);
 
     assertNotNull(result);
     assertSame(existingUser, result);
@@ -69,7 +69,7 @@ class UsersServiceTest {
     when(repository.findByAuth0Id(auth0Id)).thenReturn(Optional.empty());
     when(repository.save(any(User.class))).thenAnswer(inv -> inv.getArgument(0));
 
-    User result = service.create(jwt);
+    User result = service.getUserOrCreate(jwt);
 
     assertNotNull(result);
     assertEquals(auth0Id, result.getAuth0Id());
