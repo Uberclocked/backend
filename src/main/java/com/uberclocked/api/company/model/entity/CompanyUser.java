@@ -4,11 +4,10 @@ import com.uberclocked.api.users.model.entity.User;
 import jakarta.persistence.Entity;
 import jakarta.persistence.Id;
 import jakarta.persistence.ManyToOne;
+import java.util.UUID;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
-
-import java.util.UUID;
 
 @Entity
 @Getter
@@ -16,19 +15,15 @@ import java.util.UUID;
 @NoArgsConstructor
 public class CompanyUser {
 
-    @Id
-    private UUID id;
+  @Id private UUID id;
 
-    @ManyToOne
-    private User user;
+  @ManyToOne private User user;
 
-    @ManyToOne
-    private Company company;
+  @ManyToOne private Company company;
 
-    public CompanyUser(User user, Company company) {
-        this.id = UUID.randomUUID();
-        this.user = user;
-        this.company = company;
-    }
+  public CompanyUser(User user, Company company) {
+    this.id = UUID.randomUUID();
+    this.user = user;
+    this.company = company;
+  }
 }
-

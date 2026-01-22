@@ -10,8 +10,8 @@ import org.mapstruct.NullValuePropertyMappingStrategy;
 @Mapper(componentModel = "spring")
 public interface CompanyMapper {
 
-    CompanyDataDto toDto(Company entity);
+  CompanyDataDto toDto(Company entity);
 
-    @BeanMapping(nullValuePropertyMappingStrategy = NullValuePropertyMappingStrategy.IGNORE)
-    void update(CompanyDataDto dto, @MappingTarget Company entity);
+  @BeanMapping(nullValuePropertyMappingStrategy = NullValuePropertyMappingStrategy.IGNORE)
+  void update(CompanyDataDto dto, @MappingTarget Company entity);
 }

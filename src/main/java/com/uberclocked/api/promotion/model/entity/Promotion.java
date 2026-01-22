@@ -5,11 +5,10 @@ import com.uberclocked.api.users.model.entity.User;
 import jakarta.persistence.Entity;
 import jakarta.persistence.Id;
 import jakarta.persistence.ManyToOne;
-import java.time.LocalDateTime;
-import java.util.UUID;
-
 import jakarta.validation.constraints.Max;
 import jakarta.validation.constraints.Min;
+import java.time.LocalDateTime;
+import java.util.UUID;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -20,9 +19,11 @@ public class Promotion {
 
   private String title;
   private String description;
+
   @Min(1)
   @Max(100)
   private Integer discount;
+
   private LocalDateTime startDate;
   private LocalDateTime endDate;
 

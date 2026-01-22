@@ -8,7 +8,6 @@ import com.uberclocked.api.users.repository.UsersRepository;
 import jakarta.transaction.Transactional;
 import java.time.LocalDateTime;
 import java.util.UUID;
-
 import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.stereotype.Service;
 
@@ -47,7 +46,7 @@ public class UsersService {
     return create(jwt);
   }
 
-  public User getUSerById(UUID userId){
+  public User getUSerById(UUID userId) {
     User user = usersRepository.findById(userId).orElse(null);
     if (user != null) {
       return user;
