@@ -29,7 +29,7 @@ public class UsersService {
       return usersRepository.save(user);
     }
     String email = jwt.getClaimAsString("https://uberclocked.com/email");
-    String name  = jwt.getClaimAsString("https://uberclocked.com/name");
+    String name = jwt.getClaimAsString("https://uberclocked.com/name");
     User newUser = new User(auth0Id, name, email);
     newUser.setLastLogin(LocalDateTime.now());
     return usersRepository.save(newUser);

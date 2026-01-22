@@ -13,50 +13,42 @@ import jakarta.persistence.UniqueConstraint;
 import jakarta.validation.constraints.Max;
 import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotNull;
+import java.time.LocalDateTime;
+import java.util.UUID;
 import lombok.Getter;
 import lombok.Setter;
 
-
-import java.time.LocalDateTime;
-import java.util.UUID;
-
 @Entity
 @Table(
-        name = "reviews",
-        uniqueConstraints = {
-                @UniqueConstraint(columnNames = {"user_id"})
-        }
-)
+    name = "reviews",
+    uniqueConstraints = {@UniqueConstraint(columnNames = {"user_id"})})
 @Getter
 public class Review {
 
-    @Id
-    @GeneratedValue(strategy = GenerationType.UUID)
+  @Id
+  @GeneratedValue(strategy = GenerationType.UUID)
+  private UUID reviewId;
 
-    private UUID reviewId;
+  @ManyToOne
+  @JoinColumn(name = "user_id", nullable = false)
+  @Setter
+  private User user;
 
-    @ManyToOne
-    @JoinColumn(name = "user_id", nullable = false)
-    @Setter
-    private User user;
+  //    @ManyToOne
+  //    @JoinColumn(name = "product_id", nullable = false)
+  //    @Setter
+  //    private Product product;
 
-//    @ManyToOne
-//    @JoinColumn(name = "product_id", nullable = false)
-//    @Setter
-//    private Product product;
+  @NotNull
+  @Min(1)
+  @Max(5)
+  @Column(nullable = false)
+  @Setter
+  private Integer qualification;
 
-    @NotNull
-    @Min(1)
-    @Max(5)
-    @Column(nullable = false)
-    @Setter
-    private Integer qualification;
+  @Column(length = 1000)
+  @Setter
+  private String message;
 
-    @Column(length = 1000)
-    @Setter
-    private String message;
-
-    @Setter
-    private LocalDateTime creation;
-
+  @Setter private LocalDateTime creation;
 }
