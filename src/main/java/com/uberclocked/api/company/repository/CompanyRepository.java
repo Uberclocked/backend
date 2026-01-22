@@ -9,7 +9,7 @@ import org.springframework.stereotype.Repository;
 @Repository
 public interface CompanyRepository extends JpaRepository<Company, UUID> {
 
-  Optional<Company> findByCuit(String cuit);
+  boolean existsByEmailDomain(String emailDomain);
+  Optional<Company> findByEmailDomain(String emailDomain);
 
-  void deleteByCuit(String cuit);
 }

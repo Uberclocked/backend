@@ -7,6 +7,7 @@ import com.uberclocked.api.company.model.entity.Company;
 import com.uberclocked.api.company.repository.CompanyRepository;
 import jakarta.transaction.Transactional;
 import java.util.List;
+import java.util.Optional;
 import java.util.UUID;
 import org.springframework.stereotype.Service;
 
@@ -20,6 +21,9 @@ public class CompanyService {
   }
 
   public Company createCompany(Company company) {
+    if (companyRepository.existsByEmailDomain(company.getEmailDomain())) {
+      throw new IllegalStateException("A company with this domain already exists");
+    }
     company.setId(UUID.randomUUID());
     return companyRepository.save(company);
   }
@@ -44,5 +48,9 @@ public class CompanyService {
   public void deleteCompany(UUID id) {
     Company company = getCompany(id);
     companyRepository.delete(company);
+  }
+
+  public Optional<Company> findByDomain(String domain) {
+    return companyRepository.findByEmailDomain(domain);
   }
 }
