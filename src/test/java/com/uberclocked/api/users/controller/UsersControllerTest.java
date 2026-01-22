@@ -40,7 +40,7 @@ class UsersControllerTest {
   void createUser_whenValid_returns200_andMapsNullsToEmpty() throws Exception {
     User user = new User("auth0|123", "Santino", "santino@mail.com");
 
-    when(usersService.create(any())).thenReturn(user);
+    when(usersService.getUserOrCreate(any())).thenReturn(user);
     when(userMapper.toDto(any()))
         .thenReturn(new UserDataDto("Santino", "santino@mail.com", "", ""));
 
@@ -63,7 +63,7 @@ class UsersControllerTest {
     user.setCountry("AR");
     user.setCellPhone("+54 11 1234-5678");
 
-    when(usersService.create(any())).thenReturn(user);
+    when(usersService.getUserOrCreate(any())).thenReturn(user);
     when(userMapper.toDto(any()))
         .thenReturn(new UserDataDto("Santino", "santino@mail.com", "AR", "+54 11 1234-5678"));
 
@@ -83,7 +83,6 @@ class UsersControllerTest {
     User updated = new User("auth0|123", "Santino", "santino@mail.com");
 
     when(usersService.updateData(any(), any())).thenReturn(updated);
-    // El controller responde con DTO, así que esto define exactamente qué se valida en jsonPath
     when(userMapper.toDto(any()))
         .thenReturn(new UserDataDto("Santino", "santino@mail.com", "", ""));
 
