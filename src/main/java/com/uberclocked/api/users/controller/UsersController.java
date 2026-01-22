@@ -19,29 +19,29 @@ import org.springframework.web.bind.annotation.RestController;
 @RequestMapping("/me")
 public class UsersController {
 
-    private final UsersService usersService;
-    private final UserMapper mapper;
+  private final UsersService usersService;
+  private final UserMapper mapper;
 
-    public UsersController(UsersService usersService, UserMapper mapper) {
-        this.usersService = usersService;
-        this.mapper = mapper;
-    }
+  public UsersController(UsersService usersService, UserMapper mapper) {
+    this.usersService = usersService;
+    this.mapper = mapper;
+  }
 
-    @GetMapping
-    public UserDataDto getMe(@AuthenticationPrincipal Jwt jwt) {
-        User user = usersService.getUserOrCreate(jwt);
-        return mapper.toDto(user);
-    }
+  @GetMapping
+  public UserDataDto getMe(@AuthenticationPrincipal Jwt jwt) {
+    User user = usersService.getUserOrCreate(jwt);
+    return mapper.toDto(user);
+  }
 
-    @PatchMapping
-    public UserDataDto modifyUser(@AuthenticationPrincipal Jwt jwt, @RequestBody UserDataDto dto) {
-        User user = usersService.updateData(jwt, dto);
-        return mapper.toDto(user);
-    }
+  @PatchMapping
+  public UserDataDto modifyUser(@AuthenticationPrincipal Jwt jwt, @RequestBody UserDataDto dto) {
+    User user = usersService.updateData(jwt, dto);
+    return mapper.toDto(user);
+  }
 
-    @DeleteMapping
-    @ResponseStatus(HttpStatus.NO_CONTENT)
-    public void deleteUser(@AuthenticationPrincipal Jwt jwt) {
-        usersService.delete(jwt);
-    }
+  @DeleteMapping
+  @ResponseStatus(HttpStatus.NO_CONTENT)
+  public void deleteUser(@AuthenticationPrincipal Jwt jwt) {
+    usersService.delete(jwt);
+  }
 }
