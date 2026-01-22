@@ -7,6 +7,8 @@ import com.uberclocked.api.users.model.entity.User;
 import com.uberclocked.api.users.repository.UsersRepository;
 import jakarta.transaction.Transactional;
 import java.time.LocalDateTime;
+import java.util.UUID;
+
 import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.stereotype.Service;
 
@@ -43,6 +45,14 @@ public class UsersService {
       return usersRepository.save(user);
     }
     return create(jwt);
+  }
+
+  public User getUSerById(UUID userId){
+    User user = usersRepository.findById(userId).orElse(null);
+    if (user != null) {
+      return user;
+    }
+    throw new ResourceDoesNotExistsException("User does not exists.");
   }
 
   public User updateData(Jwt jwt, UserDataDto dataDto) {
