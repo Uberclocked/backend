@@ -1,8 +1,6 @@
 package com.uberclocked.api.users.service;
 
 import com.uberclocked.api.common.exceptions.ResourceDoesNotExistsException;
-import com.uberclocked.api.company.model.entity.CompanyUser;
-import com.uberclocked.api.company.repository.CompanyUserRepository;
 import com.uberclocked.api.company.service.CompanyService;
 import com.uberclocked.api.company.service.CompanyUserService;
 import com.uberclocked.api.users.mapper.UserMapper;
@@ -24,16 +22,16 @@ public class UsersService {
   private final UserMapper mapper;
 
   public UsersService(
-          UsersRepository usersRepository,
-          CompanyService companyService,
-          CompanyUserService companyUserService,
-          UserMapper mapper
-  ) {
+      UsersRepository usersRepository,
+      CompanyService companyService,
+      CompanyUserService companyUserService,
+      UserMapper mapper) {
     this.usersRepository = usersRepository;
     this.companyService = companyService;
     this.companyUserService = companyUserService;
     this.mapper = mapper;
   }
+
   private User create(Jwt jwt) {
     String auth0Id = jwt.getSubject();
     User user = usersRepository.findByAuth0Id(auth0Id).orElse(null);
@@ -95,16 +93,13 @@ public class UsersService {
   private void autoAssignCompanyByEmail(User user) {
     if (user.getEmail() == null || !user.getEmail().contains("@")) return;
 
-    String domain = user.getEmail()
-            .toLowerCase()
-            .substring(user.getEmail().indexOf("@") + 1);
+    String domain = user.getEmail().toLowerCase().substring(user.getEmail().indexOf("@") + 1);
 
     companyService
-            .findByDomain(domain)
-            .ifPresent(company -> {
-
-              boolean already =
-                      companyUserService.isUserInCompany(user, company);
+        .findByDomain(domain)
+        .ifPresent(
+            company -> {
+              boolean already = companyUserService.isUserInCompany(user, company);
 
               if (!already) {
                 companyUserService.addUserToCompany(user, company);

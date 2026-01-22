@@ -10,6 +10,6 @@ import org.springframework.stereotype.Repository;
 public interface CompanyRepository extends JpaRepository<Company, UUID> {
 
   boolean existsByEmailDomain(String emailDomain);
-  Optional<Company> findByEmailDomain(String emailDomain);
 
+  Optional<Company> findByEmailDomain(String emailDomain);
 }
