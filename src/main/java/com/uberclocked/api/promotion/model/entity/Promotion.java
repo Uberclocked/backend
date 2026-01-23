@@ -1,7 +1,7 @@
 package com.uberclocked.api.promotion.model.entity;
 
 import com.uberclocked.api.company.model.entity.Company;
-import com.uberclocked.api.users.model.entity.User;
+import com.uberclocked.api.user.model.entity.User;
 import jakarta.persistence.Entity;
 import jakarta.persistence.Id;
 import jakarta.persistence.ManyToOne;

@@ -2,7 +2,7 @@ package com.uberclocked.api.company.repository;
 
 import com.uberclocked.api.company.model.entity.Company;
 import com.uberclocked.api.company.model.entity.CompanyUser;
-import com.uberclocked.api.users.model.entity.User;
+import com.uberclocked.api.user.model.entity.User;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;

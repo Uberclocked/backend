@@ -2,8 +2,8 @@ package com.uberclocked.api.promotion.service;
 
 import com.uberclocked.api.company.service.CompanyUserService;
 import com.uberclocked.api.promotion.model.entity.Promotion;
-import com.uberclocked.api.users.model.entity.User;
-import com.uberclocked.api.users.service.UsersService;
+import com.uberclocked.api.user.model.entity.User;
+import com.uberclocked.api.user.service.UsersService;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.UUID;

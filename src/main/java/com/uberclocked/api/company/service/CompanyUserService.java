@@ -3,7 +3,7 @@ package com.uberclocked.api.company.service;
 import com.uberclocked.api.company.model.entity.Company;
 import com.uberclocked.api.company.model.entity.CompanyUser;
 import com.uberclocked.api.company.repository.CompanyUserRepository;
-import com.uberclocked.api.users.model.entity.User;
+import com.uberclocked.api.user.model.entity.User;
 import java.util.List;
 import org.springframework.stereotype.Service;
 
