@@ -44,13 +44,15 @@ public class SecurityConfig {
                     .permitAll()
                     .requestMatchers(HttpMethod.GET, "/posts/*")
                     .permitAll()
-                    .requestMatchers(HttpMethod.GET, "/products/**").permitAll()
-                    .requestMatchers("/products/**").authenticated()
+                    .requestMatchers(HttpMethod.GET, "/products/**")
+                    .permitAll()
+                    .requestMatchers("/products/**")
+                    .authenticated()
                     .anyRequest()
                     .authenticated())
-        .oauth2ResourceServer(oauth2 ->
-                oauth2.jwt(jwt -> jwt.jwtAuthenticationConverter(jwtAuthenticationConverter()))
-        );
+        .oauth2ResourceServer(
+            oauth2 ->
+                oauth2.jwt(jwt -> jwt.jwtAuthenticationConverter(jwtAuthenticationConverter())));
     return http.build();
   }
 

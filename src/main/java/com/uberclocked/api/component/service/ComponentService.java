@@ -49,8 +49,10 @@ public class ComponentService {
 
   public Component getEntityById(String skuPrefix) {
     return repository
-            .findById(skuPrefix)
-            .orElseThrow(() -> new ResourceDoesNotExistsException(
+        .findById(skuPrefix)
+        .orElseThrow(
+            () ->
+                new ResourceDoesNotExistsException(
                     "Component with code '" + skuPrefix + "' does not exists."));
   }
 
