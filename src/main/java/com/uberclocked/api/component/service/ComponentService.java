@@ -46,4 +46,15 @@ public class ComponentService {
     }
     repository.deleteById(code);
   }
+
+  public Component getEntityById(String skuPrefix) {
+    return repository
+            .findById(skuPrefix)
+            .orElseThrow(() -> new ResourceDoesNotExistsException(
+                    "Component with code '" + skuPrefix + "' does not exists."));
+  }
+
+  public boolean exists(String skuPrefix) {
+    return repository.existsBySkuPrefix(skuPrefix);
+  }
 }

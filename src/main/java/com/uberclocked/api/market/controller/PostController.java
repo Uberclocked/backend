@@ -1,7 +1,10 @@
 package com.uberclocked.api.market.controller;
 
 import com.uberclocked.api.market.model.dto.PostDataDto;
+import com.uberclocked.api.market.model.dto.PostInterestDto;
+import com.uberclocked.api.market.model.dto.UserPublicDto;
 import com.uberclocked.api.market.model.entity.Post;
+import com.uberclocked.api.market.service.PostInterestService;
 import com.uberclocked.api.market.service.PostService;
 import java.util.List;
 import java.util.UUID;
@@ -14,9 +17,11 @@ import org.springframework.web.bind.annotation.*;
 public class PostController {
 
   private final PostService postService;
+  private final PostInterestService interestService;
 
-  public PostController(PostService postService) {
+  public PostController(PostService postService, PostInterestService interestService) {
     this.postService = postService;
+    this.interestService = interestService;
   }
 
   @PostMapping
@@ -53,5 +58,21 @@ public class PostController {
   @PostMapping("/{id}/sold")
   public void markAsSold(@PathVariable UUID id, @AuthenticationPrincipal Jwt jwt) {
     postService.markAsSold(id, jwt);
+  }
+
+  @PostMapping("/{id}")
+  public void markInterest(@PathVariable UUID id, @AuthenticationPrincipal Jwt jwt) {
+    interestService.markInterest(id, jwt);
+  }
+
+  @PostMapping("/{id}/users/me")
+  public UserPublicDto buySellerInfo(@PathVariable UUID id, @AuthenticationPrincipal Jwt jwt) {
+    return UserPublicDto.fromEntity(interestService.buySellerInfo(id, jwt));
+  }
+
+  @GetMapping("/{id}/interested")
+  public List<PostInterestDto> getInterested(
+      @PathVariable UUID id, @AuthenticationPrincipal Jwt jwt) {
+    return interestService.getInterestedUsers(id, jwt);
   }
 }

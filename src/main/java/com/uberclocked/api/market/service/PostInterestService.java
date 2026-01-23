@@ -1,10 +1,13 @@
 package com.uberclocked.api.market.service;
 
+import com.uberclocked.api.market.mapper.PostInterestMapper;
+import com.uberclocked.api.market.model.dto.PostInterestDto;
 import com.uberclocked.api.market.model.entity.Post;
 import com.uberclocked.api.market.model.entity.PostInterest;
 import com.uberclocked.api.market.repository.PostInterestRepository;
 import com.uberclocked.api.user.model.entity.User;
 import com.uberclocked.api.user.service.UsersService;
+import java.util.List;
 import java.util.UUID;
 import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.stereotype.Service;
@@ -58,15 +61,14 @@ public class PostInterestService {
     return post.getSeller();
   }
 
-  public Object getInterestedUsers(UUID postId, Jwt jwt) {
+  public List<PostInterestDto> getInterestedUsers(UUID postId, Jwt jwt) {
     Post post = postService.getById(postId);
-
     User seller = usersService.getUserOrCreate(jwt);
 
     if (!post.getSeller().getId().equals(seller.getId())) {
       throw new IllegalStateException("You are not the owner of this post");
     }
 
-    return interestRepository.findByPost(post);
+    return interestRepository.findByPost(post).stream().map(PostInterestMapper::toDto).toList();
   }
 }

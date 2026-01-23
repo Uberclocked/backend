@@ -7,6 +7,7 @@ import java.util.List;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.http.HttpMethod;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
 import org.springframework.security.oauth2.core.DelegatingOAuth2TokenValidator;
@@ -16,6 +17,8 @@ import org.springframework.security.oauth2.jwt.JwtDecoder;
 import org.springframework.security.oauth2.jwt.JwtDecoders;
 import org.springframework.security.oauth2.jwt.JwtValidators;
 import org.springframework.security.oauth2.jwt.NimbusJwtDecoder;
+import org.springframework.security.oauth2.server.resource.authentication.JwtAuthenticationConverter;
+import org.springframework.security.oauth2.server.resource.authentication.JwtGrantedAuthoritiesConverter;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.CorsConfigurationSource;
@@ -36,9 +39,18 @@ public class SecurityConfig {
     http.cors(withDefaults())
         .csrf(AbstractHttpConfigurer::disable)
         .authorizeHttpRequests(
-            auth -> auth.requestMatchers("/public/**").permitAll().anyRequest().authenticated())
-        .oauth2ResourceServer(oauth2 -> oauth2.jwt(withDefaults()));
-
+            auth ->
+                auth.requestMatchers(HttpMethod.GET, "/posts")
+                    .permitAll()
+                    .requestMatchers(HttpMethod.GET, "/posts/*")
+                    .permitAll()
+                    .requestMatchers(HttpMethod.GET, "/products/**").permitAll()
+                    .requestMatchers("/products/**").authenticated()
+                    .anyRequest()
+                    .authenticated())
+        .oauth2ResourceServer(oauth2 ->
+                oauth2.jwt(jwt -> jwt.jwtAuthenticationConverter(jwtAuthenticationConverter()))
+        );
     return http.build();
   }
 
@@ -74,5 +86,18 @@ public class SecurityConfig {
 
     jwtDecoder.setJwtValidator(validator);
     return jwtDecoder;
+  }
+
+  @Bean
+  public JwtAuthenticationConverter jwtAuthenticationConverter() {
+
+    JwtGrantedAuthoritiesConverter converter = new JwtGrantedAuthoritiesConverter();
+    converter.setAuthoritiesClaimName("https://uberclocked.com/roles");
+    converter.setAuthorityPrefix("ROLE_");
+
+    JwtAuthenticationConverter jwtConverter = new JwtAuthenticationConverter();
+    jwtConverter.setJwtGrantedAuthoritiesConverter(converter);
+
+    return jwtConverter;
   }
 }
