@@ -8,6 +8,7 @@ import com.uberclocked.api.product.model.dto.ProductDataDto;
 import com.uberclocked.api.product.model.entity.Product;
 import com.uberclocked.api.product.productSpecification.ProductSpecification;
 import com.uberclocked.api.product.repository.ProductRepository;
+import jakarta.transaction.Transactional;
 import java.util.List;
 import java.util.Map;
 import org.springframework.data.jpa.domain.Specification;
@@ -73,5 +74,18 @@ public class ProductService {
         ProductSpecification.filter(componentSkuPrefix, minPrice, maxPrice, attributes);
 
     return productRepository.findAll(spec);
+  }
+
+  @Transactional
+  public void decreaseStock(String sku, int quantity) {
+
+    Product product = getById(sku);
+
+    if (product.getStock() < quantity) {
+      throw new IllegalArgumentException("Not enough stock for product " + product.getName());
+    }
+
+    product.setStock(product.getStock() - quantity);
+    productRepository.save(product);
   }
 }
