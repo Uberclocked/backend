@@ -26,6 +26,10 @@ public class Product {
   @Setter
   private String name;
 
+  @Column(nullable = false)
+  @Setter
+  private String image;
+
   @ManyToOne(optional = false)
   @JoinColumn(name = "component_sku_prefix")
   @Setter
