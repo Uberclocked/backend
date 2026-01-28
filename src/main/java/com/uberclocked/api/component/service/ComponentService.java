@@ -59,4 +59,21 @@ public class ComponentService {
   public boolean exists(String skuPrefix) {
     return repository.existsBySkuPrefix(skuPrefix);
   }
+
+  public java.util.List<ComponentDto> getAll() {
+    return repository.findAll()
+            .stream()
+            .map(mapper::toDto)
+            .toList();
+  }
+
+  public ComponentDto getOne(String code) {
+    if (!repository.existsBySkuPrefix(code)) {
+      throw new ResourceDoesNotExistsException(
+              "Component with code '" + code + "' does not exists.");
+    }
+
+    Component entity = repository.getReferenceById(code);
+    return mapper.toDto(entity);
+  }
 }

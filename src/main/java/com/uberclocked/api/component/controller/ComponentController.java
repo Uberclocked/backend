@@ -9,6 +9,7 @@ import org.apache.logging.log4j.internal.annotation.SuppressFBWarnings;
 import org.springframework.http.HttpStatus;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.DeleteMapping;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -17,12 +18,14 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 
+import java.util.List;
+
 @Tag(name = "Components")
 @Validated
 @RestController
 @RequestMapping("/components")
 public class ComponentController {
-  private ComponentService componentService;
+  private final ComponentService componentService;
 
   @SuppressFBWarnings(
       value = "EI_EXPOSE_REP2",
@@ -48,5 +51,17 @@ public class ComponentController {
   @ResponseStatus(HttpStatus.NO_CONTENT)
   public void delete(@PathVariable("code") String code) {
     componentService.delete(code);
+  }
+
+  @GetMapping
+  @ResponseStatus(HttpStatus.OK)
+  public List<ComponentDto> getAll() {
+    return componentService.getAll();
+  }
+
+  @GetMapping("/{code}")
+  @ResponseStatus(HttpStatus.OK)
+  public ComponentDto getOne(@PathVariable("code") String code) {
+    return componentService.getOne(code);
   }
 }

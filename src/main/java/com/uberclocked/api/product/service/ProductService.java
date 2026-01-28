@@ -8,11 +8,19 @@ import com.uberclocked.api.product.model.dto.ProductDataDto;
 import com.uberclocked.api.product.model.entity.Product;
 import com.uberclocked.api.product.productSpecification.ProductSpecification;
 import com.uberclocked.api.product.repository.ProductRepository;
+import jakarta.persistence.criteria.Join;
+import jakarta.persistence.criteria.JoinType;
+import jakarta.persistence.criteria.MapJoin;
+import jakarta.persistence.criteria.Predicate;
 import jakarta.transaction.Transactional;
+
+import java.io.IOException;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
+import org.springframework.web.multipart.MultipartFile;
 
 @Service
 public class ProductService {
@@ -30,13 +38,19 @@ public class ProductService {
     this.productMapper = productMapper;
   }
 
-  public Product create(ProductDataDto dto) {
+  public Product create(ProductDataDto dto, MultipartFile image) throws IOException {
     if (productRepository.existsById(dto.sku())) {
       throw new IllegalArgumentException("Product with this SKU already exists");
     }
     Component component = componentService.getEntityById(dto.componentSkuPrefix());
-    Product product = new Product(dto.sku(), dto.name(), component, dto.price(), dto.stock());
-    product.setAttributes(dto.attributes());
+    Product product = productMapper.toEntity(dto);
+    if (image != null && !image.isEmpty()) {
+      product.setImage(image.getBytes());
+    }
+    product.setSkuPrefix(dto.sku());
+    product.setComponent(component);
+    product.initializeAttributesFromComponent(dto.attributes());
+
     return productRepository.save(product);
   }
 
@@ -51,13 +65,19 @@ public class ProductService {
             () -> new ResourceDoesNotExistsException("Product with SKU '" + sku + "' not found"));
   }
 
-  public Product update(String sku, ProductDataDto dto) {
+  public Product update(String sku, ProductDataDto dto,MultipartFile image) throws IOException {
     Product product = getById(sku);
     productMapper.update(dto, product);
     if (dto.componentSkuPrefix() != null) {
       Component component = componentService.getEntityById(dto.componentSkuPrefix());
       product.setComponent(component);
+      product.clearAttributes();
+      product.initializeAttributesFromComponent(dto.attributes());
+      if (image != null && !image.isEmpty()) {
+        product.setImage(image.getBytes());
+      }
     }
+
     return productRepository.save(product);
   }
 
@@ -68,10 +88,38 @@ public class ProductService {
   }
 
   public List<Product> filter(
-      String componentSkuPrefix, Double minPrice, Double maxPrice, Map<String, String> attributes) {
+          String componentSkuPrefix,
+          Double minPrice,
+          Double maxPrice,
+          Map<String, String> attributes) {
 
-    Specification<Product> spec =
-        ProductSpecification.filter(componentSkuPrefix, minPrice, maxPrice, attributes);
+    Specification<Product> spec = (root, query, cb) -> {
+      List<Predicate> predicates = new ArrayList<>();
+
+      if (componentSkuPrefix != null && !componentSkuPrefix.isEmpty()) {
+        predicates.add(cb.like(root.get("skuPrefix"), componentSkuPrefix + "%"));
+      }
+
+      if (minPrice != null) {
+        predicates.add(cb.greaterThanOrEqualTo(root.get("price"), minPrice));
+      }
+
+      if (maxPrice != null) {
+        predicates.add(cb.lessThanOrEqualTo(root.get("price"), maxPrice));
+      }
+
+      attributes.forEach((key, value) -> {
+        if (value != null && !value.isEmpty()) {
+          MapJoin<Product, String, String> join = root.joinMap("attributes", JoinType.LEFT);
+          predicates.add(cb.and(
+                  cb.equal(cb.lower(join.key()), key.toLowerCase()),
+                  cb.equal(cb.lower(join.value()), value.toLowerCase())
+          ));
+        }
+      });
+
+      return cb.and(predicates.toArray(new Predicate[0]));
+    };
 
     return productRepository.findAll(spec);
   }

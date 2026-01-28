@@ -13,12 +13,18 @@ import jakarta.persistence.Table;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.UUID;
+
+import jakarta.persistence.UniqueConstraint;
 import lombok.Getter;
 import lombok.Setter;
 
 @Entity
-@Table(name = "cart")
-@Getter
+@Table(
+        name = "cart",
+        uniqueConstraints = {
+                @UniqueConstraint(columnNames = {"user_id", "status"})
+        }
+)@Getter
 public class Cart {
   @Id @GeneratedValue private UUID id;
 
