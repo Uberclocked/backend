@@ -11,11 +11,14 @@ import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.MapKeyColumn;
 import jakarta.persistence.Table;
+
+import java.time.LocalDateTime;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.UUID;
 import lombok.Getter;
 import lombok.Setter;
+import org.hibernate.annotations.CreationTimestamp;
 
 @Entity
 @Table(name = "cart_item")
@@ -32,6 +35,11 @@ public class CartItem {
 
   @Setter private Integer quantity;
   @Setter private double totalPrice;
+
+  @CreationTimestamp
+  @Column(nullable = false, updatable = false)
+  @Setter
+  private LocalDateTime createdAt;
 
   @ElementCollection
   @CollectionTable(name = "cart_item_components", joinColumns = @JoinColumn(name = "cart_item_id"))

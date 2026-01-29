@@ -1,5 +1,6 @@
 package com.uberclocked.api.review.model.entity;
 
+import com.uberclocked.api.product.model.entity.Product;
 import com.uberclocked.api.user.model.entity.User;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -20,24 +21,25 @@ import lombok.Setter;
 
 @Entity
 @Table(
-    name = "reviews",
-    uniqueConstraints = {@UniqueConstraint(columnNames = {"user_id"})})
+        name = "reviews",
+        uniqueConstraints = {@UniqueConstraint(columnNames = {"user_id", "product_id"})}
+)
 @Getter
 public class Review {
 
   @Id
   @GeneratedValue(strategy = GenerationType.UUID)
-  private UUID reviewId;
+  private UUID id;
 
-  @ManyToOne
+  @ManyToOne(optional = false)
   @JoinColumn(name = "user_id", nullable = false)
   @Setter
   private User user;
 
-  //    @ManyToOne
-  //    @JoinColumn(name = "product_id", nullable = false)
-  //    @Setter
-  //    private Product product;
+  @ManyToOne(optional = false)
+  @JoinColumn(name = "product_id", nullable = false)
+  @Setter
+  private Product product;
 
   @NotNull
   @Min(1)
@@ -50,5 +52,7 @@ public class Review {
   @Setter
   private String message;
 
-  @Setter private LocalDateTime creation;
+  @Column(nullable = false)
+  @Setter
+  private LocalDateTime createdAt;
 }

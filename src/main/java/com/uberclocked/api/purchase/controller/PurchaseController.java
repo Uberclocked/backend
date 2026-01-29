@@ -1,10 +1,14 @@
 package com.uberclocked.api.purchase.controller;
 
+import com.uberclocked.api.purchase.mapper.PurchaseMapper;
+import com.uberclocked.api.purchase.model.dto.PurchaseResponseDto;
 import com.uberclocked.api.purchase.model.dto.UpdatePurchaseDto;
 import com.uberclocked.api.purchase.model.entity.Purchase;
 import com.uberclocked.api.purchase.service.PurchaseService;
 import java.util.List;
 import java.util.UUID;
+
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -21,36 +25,40 @@ import org.springframework.web.bind.annotation.RestController;
 public class PurchaseController {
 
   private final PurchaseService purchaseService;
+  private final PurchaseMapper purchaseMapper;
 
-  public PurchaseController(PurchaseService purchaseService) {
+  public PurchaseController(PurchaseService purchaseService,PurchaseMapper purchaseMapper) {
     this.purchaseService = purchaseService;
+    this.purchaseMapper = purchaseMapper;
   }
 
   @PostMapping("/me")
-  public Purchase create(@AuthenticationPrincipal Jwt jwt) {
-    return purchaseService.createPurchase(jwt);
+  public PurchaseResponseDto create(@AuthenticationPrincipal Jwt jwt) {
+    return purchaseMapper.toDto(purchaseService.createPurchase(jwt));
   }
 
   @GetMapping("/me")
-  public List<Purchase> myPurchases(@AuthenticationPrincipal Jwt jwt) {
-    return purchaseService.getMyPurchases(jwt);
+  public List<PurchaseResponseDto> myPurchases(@AuthenticationPrincipal Jwt jwt) {
+    return purchaseMapper.toDtoList(purchaseService.getMyPurchases(jwt));
   }
 
   @GetMapping
-  public List<Purchase> getAll(@AuthenticationPrincipal Jwt jwt) {
-    return purchaseService.getAllPurchases();
+  @PreAuthorize("hasRole('Admin')")
+  public List<PurchaseResponseDto> getAll(@AuthenticationPrincipal Jwt jwt) {
+    return purchaseMapper.toDtoList(purchaseService.getAllPurchases());
   }
 
   @PatchMapping("/{id}")
-  public Purchase update(
+  @PreAuthorize("hasRole('Admin')")
+  public PurchaseResponseDto update(
       @PathVariable UUID id, @RequestBody UpdatePurchaseDto dto, @AuthenticationPrincipal Jwt jwt) {
 
-    return purchaseService.updatePurchase(id, dto, jwt);
+    return purchaseMapper.toDto(purchaseService.updatePurchase(id, dto, jwt));
   }
 
   @DeleteMapping("/{id}")
+  @PreAuthorize("hasRole('Admin')")
   public void delete(@PathVariable UUID id, @AuthenticationPrincipal Jwt jwt) {
-
     purchaseService.deletePurchase(id, jwt);
   }
 }

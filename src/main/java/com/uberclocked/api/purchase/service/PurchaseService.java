@@ -33,9 +33,8 @@ public class PurchaseService {
   }
 
   public Purchase createPurchase(Jwt jwt) {
-
     User user = usersService.getUserOrCreate(jwt);
-    Cart cart = cartService.getOrCreateActiveCart(jwt);
+    Cart cart = cartService.checkout(jwt);
 
     if (cart.getItems().isEmpty()) {
       throw new IllegalStateException("Cart is empty");
@@ -48,12 +47,11 @@ public class PurchaseService {
 
     Purchase purchase = new Purchase();
     purchase.setUser(user);
-    purchase.setItems(cart.getItems());
+    purchase.setCart(cart);
     purchase.setTotalAmount(total);
     purchase.setStatus(PurchaseStatus.CREATED);
     purchase.setCreatedAt(LocalDateTime.now());
-
-    cart.setStatus(CartStatus.COMPLETED);
+    purchase.setUpdatedAt(LocalDateTime.now());
 
     return purchaseRepository.save(purchase);
   }
@@ -68,9 +66,6 @@ public class PurchaseService {
   }
 
   public Purchase updatePurchase(UUID id, UpdatePurchaseDto dto, Jwt jwt) {
-
-    checkAdmin(jwt);
-
     Purchase purchase =
         purchaseRepository
             .findById(id)
@@ -80,18 +75,13 @@ public class PurchaseService {
       purchase.setStatus(dto.status());
     }
 
-    if (dto.pickupDate() != null) {
-      purchase.setPickupDate(dto.pickupDate());
-    }
+    purchase.setPickupDate(dto.pickupDate());
 
     purchase.setUpdatedAt(LocalDateTime.now());
     return purchaseRepository.save(purchase);
   }
 
   public void deletePurchase(UUID id, Jwt jwt) {
-
-    checkAdmin(jwt);
-
     Purchase purchase =
         purchaseRepository
             .findById(id)
@@ -99,15 +89,5 @@ public class PurchaseService {
 
     purchase.setStatus(PurchaseStatus.CANCELLED);
     purchaseRepository.save(purchase);
-  }
-
-  private void checkAdmin(Jwt jwt) {
-    List<String> roles = jwt.getClaimAsStringList("https://uberclocked.com/roles");
-
-    boolean isAdmin = roles != null && roles.contains("ADMIN");
-
-    if (!isAdmin) {
-      throw new SecurityException("Only admins can perform this action");
-    }
   }
 }

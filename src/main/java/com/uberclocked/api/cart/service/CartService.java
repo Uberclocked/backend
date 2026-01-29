@@ -50,10 +50,12 @@ public class CartService {
             });
   }
 
-  public Cart addItem(
-      Jwt jwt, String productSku, Integer quantity, Map<String, String> components) {
+  public Cart addItem(Jwt jwt, String productSku, Integer quantity, Map<String, String> components) {
     Cart cart = getOrCreateActiveCart(jwt);
 
+    if (quantity == null || quantity <= 0) {
+      throw new IllegalArgumentException("Quantity must be > 0");
+    }
     if (components != null && !components.isEmpty()) {
       double totalPrice = 0;
       for (Map.Entry<String, String> entry : components.entrySet()) {
@@ -67,35 +69,79 @@ public class CartService {
       item.setName("Custom PC");
       item.setComponents(components);
       item.setQuantity(quantity);
-      item.setTotalPrice(totalPrice);
+      item.setTotalPrice(totalPrice * quantity);
       cart.getItems().add(item);
-    } else {
-      Product product = productService.getById(productSku);
-      if (product.getStock() < quantity)
+
+      return cartRepository.save(cart);
+    }
+    Product product = productService.getById(productSku);
+    CartItem existing = cart.getItems().stream()
+            .filter(i -> i.getProduct() != null)
+            .filter(i -> productSku.equals(i.getProduct().getSkuPrefix()))
+            .findFirst()
+            .orElse(null);
+    if (existing != null) {
+      int newQty = existing.getQuantity() + quantity;
+      if (product.getStock() < newQty) {
         throw new IllegalArgumentException("Not enough stock for " + product.getName());
+      }
+      existing.setQuantity(newQty);
+      existing.setTotalPrice(product.getPrice() * newQty);
+    } else {
+      if (product.getStock() < quantity) {
+        throw new IllegalArgumentException("Not enough stock for " + product.getName());
+      }
       CartItem item = new CartItem();
+      item.setName(product.getName());
       item.setCart(cart);
       item.setProduct(product);
       item.setQuantity(quantity);
+      item.setCreatedAt(LocalDateTime.now());
       item.setTotalPrice(product.getPrice() * quantity);
       cart.getItems().add(item);
     }
-    return cart;
+    return cartRepository.save(cart);
   }
 
-  public CartItem updateItem(Jwt jwt, UUID itemId, Integer quantity) {
-    CartItem item =
-        itemRepository
-            .findById(itemId)
+  @Transactional
+  public CartItem setItemQuantity(Jwt jwt, UUID itemId, Integer quantity) {
+    if (quantity == null) throw new IllegalArgumentException("quantity is required");
+
+    User user = usersService.getUserOrCreate(jwt);
+    Cart cart = cartRepository.findByUserAndStatus(user, CartStatus.ACTIVE).orElseThrow();
+
+    CartItem item = itemRepository
+            .findByIdAndCartId(itemId, cart.getId())
             .orElseThrow(() -> new IllegalArgumentException("Item not found"));
+
+    if (quantity <= 0) {
+      itemRepository.delete(item);
+      return item;
+    }
+
     item.setQuantity(quantity);
+
+    if (item.getProduct() != null) {
+      item.setTotalPrice(item.getProduct().getPrice() * quantity);
+    } else {
+      double total = 0;
+      if (item.getComponents() != null) {
+        for (String sku : item.getComponents().values()) {
+          total += productService.getById(sku).getPrice();
+        }
+      }
+      item.setTotalPrice(total * quantity);
+    }
+
     return itemRepository.save(item);
   }
 
   public void removeItem(Jwt jwt, UUID itemId) {
-    CartItem item =
-        itemRepository
-            .findById(itemId)
+    User user = usersService.getUserOrCreate(jwt);
+    Cart cart = cartRepository.findByUserAndStatus(user, CartStatus.ACTIVE).orElseThrow();
+
+    CartItem item = itemRepository
+            .findByIdAndCartId(itemId, cart.getId())
             .orElseThrow(() -> new IllegalArgumentException("Item not found"));
     itemRepository.delete(item);
   }

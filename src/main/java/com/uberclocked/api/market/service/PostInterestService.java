@@ -43,24 +43,6 @@ public class PostInterestService {
     interestRepository.save(interest);
   }
 
-  public User buySellerInfo(UUID postId, Jwt jwt) {
-    Post post = postService.getById(postId);
-
-    User buyer = usersService.getUserOrCreate(jwt);
-
-    PostInterest interest =
-        interestRepository
-            .findByPostAndInterested(post, buyer)
-            .orElseThrow(() -> new IllegalStateException("You must mark interest first"));
-
-    if (!interest.isInfoPurchased()) {
-      interest.setInfoPurchased(true);
-      interestRepository.save(interest);
-    }
-
-    return post.getSeller();
-  }
-
   public List<PostInterestDto> getInterestedUsers(UUID postId, Jwt jwt) {
     Post post = postService.getById(postId);
     User seller = usersService.getUserOrCreate(jwt);
@@ -70,5 +52,50 @@ public class PostInterestService {
     }
 
     return interestRepository.findByPost(post).stream().map(PostInterestMapper::toDto).toList();
+  }
+
+  public User buyInterestedInfo(UUID postId, UUID interestedUserId, Jwt jwt) {
+    Post post = postService.getById(postId);
+    User seller = usersService.getUserOrCreate(jwt);
+
+    if (!post.getSeller().getId().equals(seller.getId())) {
+      throw new IllegalStateException("You are not the owner of this post");
+    }
+
+    User interested = usersService.getUSerById(interestedUserId);
+
+    PostInterest interest =
+            interestRepository
+                    .findByPostAndInterested(post, interested)
+                    .orElseThrow(() -> new IllegalStateException("This user is not interested in this post"));
+
+    if (!interest.isInfoPurchased()) {
+      interest.setInfoPurchased(true);
+      interestRepository.save(interest);
+    }
+
+    return interested;
+  }
+
+  public User getInterestedInfoIfPurchased(UUID postId, UUID interestedUserId, Jwt jwt) {
+    Post post = postService.getById(postId);
+    User seller = usersService.getUserOrCreate(jwt);
+
+    if (!post.getSeller().getId().equals(seller.getId())) {
+      throw new IllegalStateException("You are not the owner of this post");
+    }
+
+    User interested = usersService.getUSerById(interestedUserId);
+
+    PostInterest interest =
+            interestRepository
+                    .findByPostAndInterested(post, interested)
+                    .orElseThrow(() -> new IllegalStateException("This user is not interested in this post"));
+
+    if (!interest.isInfoPurchased()) {
+      throw new IllegalStateException("Info not purchased yet");
+    }
+
+    return interested;
   }
 }

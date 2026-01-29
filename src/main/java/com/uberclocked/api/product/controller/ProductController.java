@@ -12,6 +12,8 @@ import java.util.Map;
 import java.util.Set;
 
 import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PatchMapping;
@@ -35,8 +37,9 @@ public class ProductController {
   }
 
   @PostMapping(consumes = {"multipart/form-data"})
-  @PreAuthorize("hasRole('ADMIN')")
+  @PreAuthorize("hasRole('Admin')")
   public Product create(
+          @AuthenticationPrincipal Jwt jwt,
           @RequestParam String sku,
           @RequestParam String name,
           @RequestParam String componentSkuPrefix,
@@ -71,8 +74,9 @@ public class ProductController {
   }
 
   @PatchMapping(value = "/{sku}", consumes = {"multipart/form-data"})
-  @PreAuthorize("hasRole('ADMIN')")
+  @PreAuthorize("hasRole('Admin')")
   public Product update(
+          @AuthenticationPrincipal Jwt jwt,
           @PathVariable String sku,
           @RequestParam String name,
           @RequestParam Double price,
@@ -97,8 +101,8 @@ public class ProductController {
   }
 
   @DeleteMapping("/{sku}")
-  @PreAuthorize("hasRole('ADMIN')")
-  public void delete(@PathVariable String sku) {
+  @PreAuthorize("hasRole('Admin')")
+  public void delete(@PathVariable String sku,@AuthenticationPrincipal Jwt jwt) {
     productService.delete(sku);
   }
 

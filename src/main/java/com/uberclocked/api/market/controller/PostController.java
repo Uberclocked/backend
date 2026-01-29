@@ -1,16 +1,23 @@
 package com.uberclocked.api.market.controller;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.uberclocked.api.market.model.dto.PostDataDto;
 import com.uberclocked.api.market.model.dto.PostInterestDto;
+import com.uberclocked.api.market.model.dto.PostResponseDto;
 import com.uberclocked.api.market.model.dto.UserPublicDto;
-import com.uberclocked.api.market.model.entity.Post;
 import com.uberclocked.api.market.service.PostInterestService;
 import com.uberclocked.api.market.service.PostService;
+
+import java.io.IOException;
 import java.util.List;
+import java.util.Map;
 import java.util.UUID;
+
+import org.springframework.http.MediaType;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
 @RestController
 @RequestMapping("/posts")
@@ -24,30 +31,41 @@ public class PostController {
     this.interestService = interestService;
   }
 
-  @PostMapping
-  public Post create(@RequestBody PostDataDto dto, @AuthenticationPrincipal Jwt jwt) {
-    return postService.create(dto, jwt);
+  @GetMapping("/admin/all")
+  public List<PostResponseDto> getAllForAdmin(@AuthenticationPrincipal Jwt jwt) {
+    List<String> roles = jwt.getClaimAsStringList("https://uberclocked.com/roles");
+    boolean isAdmin = roles != null && roles.contains("Admin");
+    if (!isAdmin) throw new IllegalStateException("Forbidden");
+    return postService.getAll().stream().map(PostResponseDto::fromEntity).toList();
+  }
+
+  @PostMapping(consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+  public PostResponseDto create(
+          @RequestPart("data") PostDataDto dto,
+          @RequestPart(value = "image", required = false) MultipartFile image,
+          @AuthenticationPrincipal Jwt jwt) throws IOException {
+    return PostResponseDto.fromEntity(postService.create(dto, image, jwt));
   }
 
   @GetMapping
-  public List<Post> getAll() {
-    return postService.getAllActive();
+  public List<PostResponseDto> getAll() {
+    return postService.getAllActive().stream().map(PostResponseDto::fromEntity).toList();
   }
 
   @GetMapping("/{id}")
-  public Post getById(@PathVariable UUID id) {
-    return postService.getById(id);
+  public PostResponseDto getById(@PathVariable UUID id) {
+    return PostResponseDto.fromEntity(postService.getById(id));
   }
 
   @GetMapping("/me")
-  public List<Post> myPosts(@AuthenticationPrincipal Jwt jwt) {
-    return postService.getMyPosts(jwt);
+  public List<PostResponseDto> myPosts(@AuthenticationPrincipal Jwt jwt) {
+    return postService.getMyPosts(jwt).stream().map(PostResponseDto::fromEntity).toList();
   }
 
   @PatchMapping("/{id}")
-  public Post update(
-      @PathVariable UUID id, @RequestBody PostDataDto dto, @AuthenticationPrincipal Jwt jwt) {
-    return postService.update(id, dto, jwt);
+  public PostResponseDto update(
+          @PathVariable UUID id, @RequestBody PostDataDto dto, @AuthenticationPrincipal Jwt jwt) {
+    return PostResponseDto.fromEntity(postService.update(id, dto, jwt));
   }
 
   @DeleteMapping("/{id}")
@@ -60,19 +78,29 @@ public class PostController {
     postService.markAsSold(id, jwt);
   }
 
-  @PostMapping("/{id}")
+  @PostMapping("/{id}/interest")
   public void markInterest(@PathVariable UUID id, @AuthenticationPrincipal Jwt jwt) {
     interestService.markInterest(id, jwt);
   }
 
-  @PostMapping("/{id}/users/me")
-  public UserPublicDto buySellerInfo(@PathVariable UUID id, @AuthenticationPrincipal Jwt jwt) {
-    return UserPublicDto.fromEntity(interestService.buySellerInfo(id, jwt));
+  @GetMapping("/{id}/interested")
+  public List<PostInterestDto> getInterested(@PathVariable UUID id, @AuthenticationPrincipal Jwt jwt) {
+    return interestService.getInterestedUsers(id, jwt);
   }
 
-  @GetMapping("/{id}/interested")
-  public List<PostInterestDto> getInterested(
-      @PathVariable UUID id, @AuthenticationPrincipal Jwt jwt) {
-    return interestService.getInterestedUsers(id, jwt);
+  @PostMapping("/{postId}/interested/{interestedUserId}/purchase")
+  public UserPublicDto purchaseInterestedInfo(
+          @PathVariable UUID postId,
+          @PathVariable UUID interestedUserId,
+          @AuthenticationPrincipal Jwt jwt) {
+    return UserPublicDto.fromEntity(interestService.buyInterestedInfo(postId, interestedUserId, jwt));
+  }
+
+  @GetMapping("/{postId}/interested/{interestedUserId}")
+  public UserPublicDto getInterestedInfo(
+          @PathVariable UUID postId,
+          @PathVariable UUID interestedUserId,
+          @AuthenticationPrincipal Jwt jwt) {
+    return UserPublicDto.fromEntity(interestService.getInterestedInfoIfPurchased(postId, interestedUserId, jwt));
   }
 }

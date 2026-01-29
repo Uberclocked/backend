@@ -9,6 +9,7 @@ import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.Id;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.OneToMany;
+import jakarta.persistence.OrderBy;
 import jakarta.persistence.Table;
 import java.time.LocalDateTime;
 import java.util.List;
@@ -19,12 +20,8 @@ import lombok.Getter;
 import lombok.Setter;
 
 @Entity
-@Table(
-        name = "cart",
-        uniqueConstraints = {
-                @UniqueConstraint(columnNames = {"user_id", "status"})
-        }
-)@Getter
+@Table(name = "cart" )
+@Getter
 public class Cart {
   @Id @GeneratedValue private UUID id;
 
@@ -32,6 +29,7 @@ public class Cart {
 
   @OneToMany(mappedBy = "cart", cascade = CascadeType.ALL, orphanRemoval = true)
   @Setter
+  @OrderBy("createdAt ASC")
   private List<CartItem> items;
 
   @Setter private LocalDateTime createdAt;

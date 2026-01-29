@@ -20,5 +20,7 @@ public interface UserMapper {
   @Mapping(target = "auth0Id", ignore = true)
   @Mapping(target = "lastLogin", ignore = true)
   @Mapping(target = "userStatus", ignore = true)
+  @Mapping(target = "email", ignore = true)
+  @Mapping(target = "userName", ignore = true)
   void update(UserDataDto dto, @MappingTarget User entity);
 }

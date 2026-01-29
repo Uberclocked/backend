@@ -22,7 +22,11 @@ public class Post {
   @GeneratedValue(strategy = GenerationType.UUID)
   private UUID id;
 
+  @Setter
   private String title;
+
+  @Setter
+  private byte[] image;
 
   @Column(length = 2000)
   @Setter
@@ -44,12 +48,14 @@ public class Post {
 
   public Post(
       String title,
+      byte[] image,
       String description,
       Double price,
       String category,
       User seller,
       LocalDateTime createdAt) {
     this.title = title;
+    this.image = image;
     this.description = description;
     this.price = price;
     this.category = category;

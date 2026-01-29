@@ -31,6 +31,7 @@ public class UsersController {
   public UserDataDto getMe(@AuthenticationPrincipal Jwt jwt) {
     User user = usersService.getUserOrCreate(jwt);
     return mapper.toDto(user);
+
   }
 
   @PatchMapping

@@ -1,5 +1,8 @@
 package com.uberclocked.api.user.service;
 
+import com.uberclocked.api.cart.model.entity.Cart;
+import com.uberclocked.api.cart.model.entity.CartStatus;
+import com.uberclocked.api.cart.repository.CartRepository;
 import com.uberclocked.api.common.exceptions.ResourceDoesNotExistsException;
 import com.uberclocked.api.company.service.CompanyService;
 import com.uberclocked.api.company.service.CompanyUserService;
@@ -20,32 +23,39 @@ public class UsersService {
   private final CompanyService companyService;
   private final CompanyUserService companyUserService;
   private final UserMapper mapper;
+  private final CartRepository cartRepository;
 
   public UsersService(
       UsersRepository usersRepository,
       CompanyService companyService,
       CompanyUserService companyUserService,
-      UserMapper mapper) {
+      UserMapper mapper, CartRepository cartRepository) {
     this.usersRepository = usersRepository;
     this.companyService = companyService;
     this.companyUserService = companyUserService;
     this.mapper = mapper;
+    this.cartRepository = cartRepository;
   }
 
-  private User create(Jwt jwt) {
+  @Transactional
+  protected User create(Jwt jwt) {
     String auth0Id = jwt.getSubject();
-    User user = usersRepository.findByAuth0Id(auth0Id).orElse(null);
-    if (user != null) {
-      user.setLastLogin(LocalDateTime.now());
-      return usersRepository.save(user);
-    }
+
     String email = jwt.getClaimAsString("https://uberclocked.com/email");
     String name = jwt.getClaimAsString("https://uberclocked.com/name");
+
     User newUser = new User(auth0Id, name, email);
     newUser.setLastLogin(LocalDateTime.now());
-    return usersRepository.save(newUser);
-  }
+    newUser = usersRepository.save(newUser);
+    Cart cart = new Cart();
+    cart.setUser(newUser);
+    cart.setStatus(CartStatus.ACTIVE);
+    cart.setCreatedAt(LocalDateTime.now());
 
+    cartRepository.save(cart);
+
+    return newUser;
+  }
   public User getUserOrCreate(Jwt jwt) {
     String userId = jwt.getSubject();
     User user = usersRepository.findByAuth0Id(userId).orElse(null);
@@ -79,11 +89,9 @@ public class UsersService {
   @Transactional
   public void delete(Jwt jwt) {
     String auth0Id = jwt.getSubject();
-    boolean exists = usersRepository.findByAuth0Id(auth0Id).isPresent();
-    if (!exists) {
-      throw new ResourceDoesNotExistsException("User does not exist.");
-    }
-    usersRepository.deleteByAuth0Id(auth0Id);
+    User user = usersRepository.findByAuth0Id(auth0Id)
+            .orElseThrow(() -> new ResourceDoesNotExistsException("User does not exist."));
+    usersRepository.delete(user);
   }
 
   public User getUserByEmail(String email) {

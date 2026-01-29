@@ -42,6 +42,12 @@ public class SecurityConfig {
             auth ->
                 auth.requestMatchers(HttpMethod.GET, "/posts")
                     .permitAll()
+                    .requestMatchers(HttpMethod.GET, "/posts")
+                    .permitAll()
+                    .requestMatchers(HttpMethod.GET, "/posts/{id}")
+                    .permitAll()
+                    .requestMatchers(HttpMethod.GET, "/reviews/**")
+                    .permitAll()
                     .requestMatchers(HttpMethod.GET, "/posts/*")
                     .permitAll()
                     .requestMatchers(HttpMethod.GET, "/products/**")

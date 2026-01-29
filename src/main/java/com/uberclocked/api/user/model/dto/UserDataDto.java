@@ -1,3 +1,5 @@
 package com.uberclocked.api.user.model.dto;
 
-public record UserDataDto(String userName, String email, String country, String cellPhone) {}
+import java.util.UUID;
+
+public record UserDataDto(UUID id, String userName, String email, String country, String cellPhone) {}
