@@ -23,6 +23,7 @@ import com.uberclocked.api.cart.model.entity.CartItem;
 import com.uberclocked.api.cart.service.CartService;
 import com.uberclocked.api.payment.model.dto.MpBrickSubmitDto;
 import com.uberclocked.api.payment.model.dto.PaymentDto;
+import com.uberclocked.api.payment.model.dto.PaymentStatus;
 import com.uberclocked.api.payment.model.dto.PreferenceDto;
 import com.uberclocked.api.payment.repository.MercadoPagoRepository;
 import com.uberclocked.api.purchase.model.entity.Purchase;
@@ -78,7 +79,7 @@ public class MercadoPagoService {
                     .build())
             .externalReference(myPurchase.getId().toString())
             .build());
-    return new PaymentDto(myPurchase.getId(), payment.getId());
+    return new PaymentDto(myPurchase.getId(), payment.getId(), PaymentStatus.APPROVED);
   }
 
   public PreferenceDto createPreference(Jwt jwt) {
