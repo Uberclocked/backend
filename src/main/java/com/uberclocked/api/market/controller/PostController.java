@@ -103,4 +103,8 @@ public class PostController {
           @AuthenticationPrincipal Jwt jwt) {
     return UserPublicDto.fromEntity(interestService.getInterestedInfoIfPurchased(postId, interestedUserId, jwt));
   }
+  @GetMapping("/{id}/interest/me")
+  public boolean hasMyInterest(@PathVariable UUID id, @AuthenticationPrincipal Jwt jwt) {
+    return interestService.hasInterest(id, jwt);
+  }
 }

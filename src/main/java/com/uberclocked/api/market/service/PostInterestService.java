@@ -98,4 +98,15 @@ public class PostInterestService {
 
     return interested;
   }
+
+  public boolean hasInterest(UUID postId, Jwt jwt) {
+    Post post = postService.getById(postId);
+    User user = usersService.getUserOrCreate(jwt);
+
+    if (post.getSeller().getId().equals(user.getId())) {
+      return false;
+    }
+
+    return interestRepository.existsByPostAndInterested(post, user);
+  }
 }
