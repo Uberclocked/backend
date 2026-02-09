@@ -36,6 +36,10 @@ public class CartService {
     this.usersService = usersService;
   }
 
+  public Cart getCart(UUID id) {
+    return cartRepository.getReferenceById(id);
+  }
+
   public Cart getOrCreateActiveCart(Jwt jwt) {
     User user = usersService.getUserOrCreate(jwt);
     return cartRepository
@@ -76,10 +80,10 @@ public class CartService {
     }
     Product product = productService.getById(productSku);
     CartItem existing = cart.getItems().stream()
-            .filter(i -> i.getProduct() != null)
-            .filter(i -> productSku.equals(i.getProduct().getSkuPrefix()))
-            .findFirst()
-            .orElse(null);
+        .filter(i -> i.getProduct() != null)
+        .filter(i -> productSku.equals(i.getProduct().getSkuPrefix()))
+        .findFirst()
+        .orElse(null);
     if (existing != null) {
       int newQty = existing.getQuantity() + quantity;
       if (product.getStock() < newQty) {
@@ -105,14 +109,15 @@ public class CartService {
 
   @Transactional
   public CartItem setItemQuantity(Jwt jwt, UUID itemId, Integer quantity) {
-    if (quantity == null) throw new IllegalArgumentException("quantity is required");
+    if (quantity == null)
+      throw new IllegalArgumentException("quantity is required");
 
     User user = usersService.getUserOrCreate(jwt);
     Cart cart = cartRepository.findByUserAndStatus(user, CartStatus.ACTIVE).orElseThrow();
 
     CartItem item = itemRepository
-            .findByIdAndCartId(itemId, cart.getId())
-            .orElseThrow(() -> new IllegalArgumentException("Item not found"));
+        .findByIdAndCartId(itemId, cart.getId())
+        .orElseThrow(() -> new IllegalArgumentException("Item not found"));
 
     if (quantity <= 0) {
       itemRepository.delete(item);
@@ -141,8 +146,8 @@ public class CartService {
     Cart cart = cartRepository.findByUserAndStatus(user, CartStatus.ACTIVE).orElseThrow();
 
     CartItem item = itemRepository
-            .findByIdAndCartId(itemId, cart.getId())
-            .orElseThrow(() -> new IllegalArgumentException("Item not found"));
+        .findByIdAndCartId(itemId, cart.getId())
+        .orElseThrow(() -> new IllegalArgumentException("Item not found"));
     itemRepository.delete(item);
   }
 
@@ -171,10 +176,9 @@ public class CartService {
 
   public CartItem updateComponentInItem(
       Jwt jwt, UUID itemId, String componentType, String newProductSku) {
-    CartItem item =
-        itemRepository
-            .findById(itemId)
-            .orElseThrow(() -> new IllegalArgumentException("Item not found"));
+    CartItem item = itemRepository
+        .findById(itemId)
+        .orElseThrow(() -> new IllegalArgumentException("Item not found"));
     Product newProduct = productService.getById(newProductSku);
     if (newProduct.getStock() < item.getQuantity())
       throw new IllegalArgumentException("Not enough stock");

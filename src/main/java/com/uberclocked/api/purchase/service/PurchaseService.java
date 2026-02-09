@@ -2,7 +2,6 @@ package com.uberclocked.api.purchase.service;
 
 import com.uberclocked.api.cart.model.entity.Cart;
 import com.uberclocked.api.cart.model.entity.CartItem;
-import com.uberclocked.api.cart.model.entity.CartStatus;
 import com.uberclocked.api.cart.service.CartService;
 import com.uberclocked.api.purchase.model.dto.UpdatePurchaseDto;
 import com.uberclocked.api.purchase.model.entity.Purchase;
@@ -30,6 +29,10 @@ public class PurchaseService {
     this.purchaseRepository = purchaseRepository;
     this.cartService = cartService;
     this.usersService = usersService;
+  }
+
+  public Purchase getPurchase(UUID id) {
+    return purchaseRepository.getReferenceById(id);
   }
 
   public Purchase createPurchase(Jwt jwt) {
@@ -66,10 +69,9 @@ public class PurchaseService {
   }
 
   public Purchase updatePurchase(UUID id, UpdatePurchaseDto dto, Jwt jwt) {
-    Purchase purchase =
-        purchaseRepository
-            .findById(id)
-            .orElseThrow(() -> new IllegalArgumentException("Purchase not found"));
+    Purchase purchase = purchaseRepository
+        .findById(id)
+        .orElseThrow(() -> new IllegalArgumentException("Purchase not found"));
 
     if (dto.status() != null) {
       purchase.setStatus(dto.status());
@@ -82,10 +84,9 @@ public class PurchaseService {
   }
 
   public void deletePurchase(UUID id, Jwt jwt) {
-    Purchase purchase =
-        purchaseRepository
-            .findById(id)
-            .orElseThrow(() -> new IllegalArgumentException("Purchase not found"));
+    Purchase purchase = purchaseRepository
+        .findById(id)
+        .orElseThrow(() -> new IllegalArgumentException("Purchase not found"));
 
     purchase.setStatus(PurchaseStatus.CANCELLED);
     purchaseRepository.save(purchase);

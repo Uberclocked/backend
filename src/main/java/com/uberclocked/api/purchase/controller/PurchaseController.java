@@ -3,7 +3,6 @@ package com.uberclocked.api.purchase.controller;
 import com.uberclocked.api.purchase.mapper.PurchaseMapper;
 import com.uberclocked.api.purchase.model.dto.PurchaseResponseDto;
 import com.uberclocked.api.purchase.model.dto.UpdatePurchaseDto;
-import com.uberclocked.api.purchase.model.entity.Purchase;
 import com.uberclocked.api.purchase.service.PurchaseService;
 import java.util.List;
 import java.util.UUID;
@@ -27,7 +26,7 @@ public class PurchaseController {
   private final PurchaseService purchaseService;
   private final PurchaseMapper purchaseMapper;
 
-  public PurchaseController(PurchaseService purchaseService,PurchaseMapper purchaseMapper) {
+  public PurchaseController(PurchaseService purchaseService, PurchaseMapper purchaseMapper) {
     this.purchaseService = purchaseService;
     this.purchaseMapper = purchaseMapper;
   }

@@ -12,7 +12,6 @@ import jakarta.persistence.Lob;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.MapKeyColumn;
 
-import java.util.Base64;
 import java.util.HashMap;
 import java.util.Map;
 import lombok.Getter;
@@ -61,7 +60,8 @@ public class Product {
   @Column(name = "field_value")
   private Map<String, String> attributes = new HashMap<>();
 
-  public Product() {}
+  public Product() {
+  }
 
   public Product(String skuPrefix, String name, Component component, double price, int stock) {
     this.skuPrefix = skuPrefix;
@@ -72,8 +72,7 @@ public class Product {
   }
 
   public void initializeAttributesFromComponent(
-          Map<String, String> providedAttributes
-  ) {
+      Map<String, String> providedAttributes) {
     Map<String, ComponentField> fields = component.getFields();
 
     for (Map.Entry<String, ComponentField> entry : fields.entrySet()) {
@@ -90,9 +89,8 @@ public class Product {
           attributes.put(fieldName, field.defaultValue());
         } else {
           throw new IllegalArgumentException(
-                  "Missing required field '%s' for component '%s'"
-                          .formatted(fieldName, component.getSkuPrefix())
-          );
+              "Missing required field '%s' for component '%s'"
+                  .formatted(fieldName, component.getSkuPrefix()));
         }
       }
     }
@@ -101,9 +99,8 @@ public class Product {
   public void updateAttribute(String name, String value) {
     if (!component.getFields().containsKey(name)) {
       throw new IllegalArgumentException(
-              "Field '%s' is not defined in component '%s'"
-                      .formatted(name, component.getSkuPrefix())
-      );
+          "Field '%s' is not defined in component '%s'"
+              .formatted(name, component.getSkuPrefix()));
     }
     attributes.put(name, value);
   }

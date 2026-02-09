@@ -12,30 +12,40 @@ import jakarta.persistence.OneToMany;
 import jakarta.persistence.OrderBy;
 import jakarta.persistence.Table;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
-import jakarta.persistence.UniqueConstraint;
 import lombok.Getter;
 import lombok.Setter;
 
 @Entity
-@Table(name = "cart" )
+@Table(name = "cart")
 @Getter
 public class Cart {
-  @Id @GeneratedValue private UUID id;
+  @Id
+  @GeneratedValue
+  private UUID id;
 
-  @ManyToOne @Setter private User user;
+  @ManyToOne
+  @Setter
+  private User user;
 
   @OneToMany(mappedBy = "cart", cascade = CascadeType.ALL, orphanRemoval = true)
   @Setter
   @OrderBy("createdAt ASC")
-  private List<CartItem> items;
+  private List<CartItem> items = new ArrayList<>();
 
-  @Setter private LocalDateTime createdAt;
-  @Setter private LocalDateTime updatedAt;
+  @Setter
+  private LocalDateTime createdAt;
+  @Setter
+  private LocalDateTime updatedAt;
 
   @Enumerated(EnumType.STRING)
   @Setter
   private CartStatus status;
+
+  public List<CartItem> items() {
+    return new ArrayList<>(items);
+  }
 }

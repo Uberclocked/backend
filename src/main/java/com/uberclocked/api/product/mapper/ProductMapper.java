@@ -4,7 +4,6 @@ import com.uberclocked.api.product.model.dto.ProductDataDto;
 import com.uberclocked.api.product.model.entity.Product;
 import org.mapstruct.BeanMapping;
 import org.mapstruct.Mapper;
-import org.mapstruct.Mapping;
 import org.mapstruct.MappingTarget;
 import org.mapstruct.NullValuePropertyMappingStrategy;
 import org.springframework.web.multipart.MultipartFile;
@@ -20,7 +19,8 @@ public interface ProductMapper {
   void update(ProductDataDto dto, @MappingTarget Product entity) throws IOException;
 
   default byte[] map(MultipartFile file) throws IOException {
-    if (file == null || file.isEmpty()) return null;
+    if (file == null || file.isEmpty())
+      return null;
     return file.getBytes();
   }
 }

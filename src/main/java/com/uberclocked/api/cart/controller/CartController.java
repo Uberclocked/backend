@@ -4,7 +4,6 @@ import com.uberclocked.api.cart.mapper.CartMapper;
 import com.uberclocked.api.cart.model.dto.AddCartItemDto;
 import com.uberclocked.api.cart.model.dto.CartDto;
 import com.uberclocked.api.cart.model.dto.CartItemDto;
-import com.uberclocked.api.cart.model.entity.Cart;
 import com.uberclocked.api.cart.model.entity.CartItem;
 import com.uberclocked.api.cart.service.CartService;
 import java.util.UUID;
@@ -37,31 +36,31 @@ public class CartController {
 
   @PostMapping("/me/items")
   public CartDto addItem(
-          @AuthenticationPrincipal Jwt jwt,
-          @RequestBody AddCartItemDto dto) {
+      @AuthenticationPrincipal Jwt jwt,
+      @RequestBody AddCartItemDto dto) {
 
     return CartMapper.toDto(
-            cartService.addItem(jwt, dto.productSku(), dto.quantity(), dto.components())
-    );
+        cartService.addItem(jwt, dto.productSku(), dto.quantity(), dto.components()));
   }
 
   @PatchMapping("/me/items/{itemId}")
   public CartItemDto updateItem(
-          @PathVariable UUID itemId,
-          @RequestParam Integer quantity,
-          @AuthenticationPrincipal Jwt jwt) {
+      @PathVariable UUID itemId,
+      @RequestParam Integer quantity,
+      @AuthenticationPrincipal Jwt jwt) {
 
-    CartItem item =  cartService.setItemQuantity(jwt,itemId,quantity);
-    return new CartItemDto(itemId,item.getName(),item.getProduct().getImage(),item.getQuantity(),item.getTotalPrice(),item.getProduct().getSkuPrefix(),item.getProduct().getName(),item.getComponents());
+    CartItem item = cartService.setItemQuantity(jwt, itemId, quantity);
+    return new CartItemDto(itemId, item.getName(), item.getProduct().getImage(), item.getQuantity(),
+        item.getTotalPrice(), item.getProduct().getSkuPrefix(), item.getProduct().getName(), item.getComponents());
 
   }
 
   @PatchMapping("/me/items/{itemId}/components")
   public CartDto updateComponent(
-          @PathVariable UUID itemId,
-          @RequestParam String componentType,
-          @RequestParam String newProductSku,
-          @AuthenticationPrincipal Jwt jwt) {
+      @PathVariable UUID itemId,
+      @RequestParam String componentType,
+      @RequestParam String newProductSku,
+      @AuthenticationPrincipal Jwt jwt) {
 
     cartService.updateComponentInItem(jwt, itemId, componentType, newProductSku);
     return CartMapper.toDto(cartService.getOrCreateActiveCart(jwt));
@@ -69,8 +68,8 @@ public class CartController {
 
   @DeleteMapping("/me/items/{itemId}")
   public CartDto removeItem(
-          @PathVariable UUID itemId,
-          @AuthenticationPrincipal Jwt jwt) {
+      @PathVariable UUID itemId,
+      @AuthenticationPrincipal Jwt jwt) {
 
     cartService.removeItem(jwt, itemId);
     return CartMapper.toDto(cartService.getOrCreateActiveCart(jwt));

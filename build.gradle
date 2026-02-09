@@ -125,6 +125,12 @@ dependencies {
   implementation 'org.springframework.boot:spring-boot-h2console'
   implementation 'org.springframework.boot:spring-boot-starter-oauth2-resource-server'
 
+  //WebClient
+  implementation 'org.springframework.boot:spring-boot-starter-webflux'
+
+  //MercadoPagoSDK
+  implementation("com.mercadopago:sdk-java:2.8.0")
+
   // OpenAPI / Swagger
   implementation 'org.springdoc:springdoc-openapi-starter-webmvc-ui:2.5.0'
 
@@ -146,9 +152,6 @@ dependencies {
   testImplementation 'org.springframework.boot:spring-boot-starter-validation-test'
   testImplementation 'org.springframework.boot:spring-boot-starter-webmvc-test'
   testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
-
-  // spotbugsPlugins
-//  spotbugsPlugins 'com.h3xstream.findsecbugs:findsecbugs-plugin:1.12.0'
 }
 
 tasks.named('test') {

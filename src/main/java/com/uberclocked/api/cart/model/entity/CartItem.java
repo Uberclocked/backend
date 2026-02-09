@@ -25,16 +25,42 @@ import org.hibernate.annotations.CreationTimestamp;
 @Getter
 public class CartItem {
 
-  @Id @GeneratedValue private UUID id;
+  @Id
+  @GeneratedValue
+  private UUID id;
 
-  @Setter private String name;
+  public UUID id() {
+    return id;
+  }
 
-  @ManyToOne @Setter private Cart cart;
+  @Setter
+  private String name;
 
-  @ManyToOne @Setter private Product product;
+  public String name() {
+    return name;
+  }
 
-  @Setter private Integer quantity;
-  @Setter private double totalPrice;
+  @ManyToOne
+  @Setter
+  private Cart cart;
+
+  @ManyToOne
+  @Setter
+  private Product product;
+
+  @Setter
+  private Integer quantity;
+
+  public Integer quantity() {
+    return quantity;
+  }
+
+  @Setter
+  private double totalPrice;
+
+  public double totalPrice() {
+    return totalPrice;
+  }
 
   @CreationTimestamp
   @Column(nullable = false, updatable = false)

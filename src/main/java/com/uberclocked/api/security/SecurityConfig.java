@@ -14,7 +14,6 @@ import org.springframework.security.oauth2.core.DelegatingOAuth2TokenValidator;
 import org.springframework.security.oauth2.core.OAuth2TokenValidator;
 import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.security.oauth2.jwt.JwtDecoder;
-import org.springframework.security.oauth2.jwt.JwtDecoders;
 import org.springframework.security.oauth2.jwt.JwtValidators;
 import org.springframework.security.oauth2.jwt.NimbusJwtDecoder;
 import org.springframework.security.oauth2.server.resource.authentication.JwtAuthenticationConverter;
@@ -39,26 +38,25 @@ public class SecurityConfig {
     http.cors(withDefaults())
         .csrf(AbstractHttpConfigurer::disable)
         .authorizeHttpRequests(
-            auth ->
-                auth.requestMatchers(HttpMethod.GET, "/posts")
-                    .permitAll()
-                    .requestMatchers(HttpMethod.GET, "/posts")
-                    .permitAll()
-                    .requestMatchers(HttpMethod.GET, "/posts/{id}")
-                    .permitAll()
-                    .requestMatchers(HttpMethod.GET, "/reviews/**")
-                    .permitAll()
-                    .requestMatchers(HttpMethod.GET, "/posts/*")
-                    .permitAll()
-                    .requestMatchers(HttpMethod.GET, "/products/**")
-                    .permitAll()
-                    .requestMatchers("/products/**")
-                    .authenticated()
-                    .anyRequest()
-                    .authenticated())
+            auth -> auth
+                .requestMatchers(HttpMethod.OPTIONS, "/**")
+                .permitAll()
+                .requestMatchers(HttpMethod.GET, "/posts")
+                .permitAll()
+                .requestMatchers(HttpMethod.GET, "/posts/{id}")
+                .permitAll()
+                .requestMatchers(HttpMethod.GET, "/reviews/**")
+                .permitAll()
+                .requestMatchers(HttpMethod.GET, "/posts/*")
+                .permitAll()
+                .requestMatchers(HttpMethod.GET, "/products/**")
+                .permitAll()
+                .requestMatchers("/products/**")
+                .authenticated()
+                .anyRequest()
+                .authenticated())
         .oauth2ResourceServer(
-            oauth2 ->
-                oauth2.jwt(jwt -> jwt.jwtAuthenticationConverter(jwtAuthenticationConverter())));
+            oauth2 -> oauth2.jwt(jwt -> jwt.jwtAuthenticationConverter(jwtAuthenticationConverter())));
     return http.build();
   }
 
@@ -83,14 +81,14 @@ public class SecurityConfig {
 
   @Bean
   public JwtDecoder jwtDecoder() {
-    NimbusJwtDecoder jwtDecoder = JwtDecoders.fromIssuerLocation(issuerUri);
+    NimbusJwtDecoder jwtDecoder = NimbusJwtDecoder.withJwkSetUri(
+        issuerUri + ".well-known/jwks.json").build();
 
     OAuth2TokenValidator<Jwt> withIssuer = JwtValidators.createDefaultWithIssuer(issuerUri);
 
     OAuth2TokenValidator<Jwt> audienceValidator = new AudienceValidator(audience);
 
-    OAuth2TokenValidator<Jwt> validator =
-        new DelegatingOAuth2TokenValidator<>(withIssuer, audienceValidator);
+    OAuth2TokenValidator<Jwt> validator = new DelegatingOAuth2TokenValidator<>(withIssuer, audienceValidator);
 
     jwtDecoder.setJwtValidator(validator);
     return jwtDecoder;
