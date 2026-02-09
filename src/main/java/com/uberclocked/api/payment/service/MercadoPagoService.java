@@ -10,6 +10,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import com.mercadopago.client.common.IdentificationRequest;
+import com.mercadopago.client.payment.PaymentAdditionalInfoRequest;
 import com.mercadopago.client.payment.PaymentCreateRequest;
 import com.mercadopago.client.payment.PaymentItemRequest;
 import com.mercadopago.client.payment.PaymentPayerRequest;
@@ -50,7 +51,6 @@ public class MercadoPagoService {
               .id(item.id().toString())
               .title(item.name())
               .quantity(item.quantity())
-              .currencyId("ARS")
               .unitPrice(
                   BigDecimal.valueOf(item.totalPrice())
                       .divide(BigDecimal.valueOf(item.quantity()), 2, RoundingMode.HALF_UP))
@@ -59,6 +59,10 @@ public class MercadoPagoService {
     Payment payment = mpRepository.createPayment(
         PaymentCreateRequest.builder()
             .token(body.token())
+            .additionalInfo(
+                PaymentAdditionalInfoRequest.builder()
+                    .items(items)
+                    .build())
             .paymentMethodId(body.paymentMethodId())
             .issuerId(body.issuerId())
             .installments(body.installments())
