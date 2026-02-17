@@ -17,7 +17,6 @@ public class PostInterestDto {
   public static PostInterestDto fromEntity(PostInterest interest) {
     PostInterestDto dto = new PostInterestDto();
     dto.id = interest.getId();
-    dto.userId = interest.getInterested().getId();
     dto.userName = interest.getInterested().getUserName();
     dto.infoPurchased = interest.isInfoPurchased();
     return dto;
