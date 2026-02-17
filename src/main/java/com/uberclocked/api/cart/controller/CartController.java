@@ -4,9 +4,14 @@ import com.uberclocked.api.cart.mapper.CartMapper;
 import com.uberclocked.api.cart.model.dto.AddCartItemDto;
 import com.uberclocked.api.cart.model.dto.CartDto;
 import com.uberclocked.api.cart.model.dto.CartItemDto;
+import com.uberclocked.api.cart.model.dto.UpdateCartItemComponentsDto;
+import com.uberclocked.api.cart.model.entity.Cart;
 import com.uberclocked.api.cart.model.entity.CartItem;
 import com.uberclocked.api.cart.service.CartService;
 import java.util.UUID;
+
+import com.uberclocked.api.product.model.entity.Product;
+import com.uberclocked.api.product.service.ProductService;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -24,14 +29,18 @@ import org.springframework.web.bind.annotation.RestController;
 public class CartController {
 
   private final CartService cartService;
+  private final ProductService productService;
+  private final CartMapper mapper;
 
-  public CartController(CartService cartService) {
+  public CartController(CartService cartService, ProductService productService, CartMapper mapper) {
     this.cartService = cartService;
+    this.productService = productService;
+    this.mapper = mapper;
   }
 
   @GetMapping("/me")
   public CartDto getMyCart(@AuthenticationPrincipal Jwt jwt) {
-    return CartMapper.toDto(cartService.getOrCreateActiveCart(jwt));
+    return mapper.toDto(cartService.getOrCreateActiveCart(jwt));
   }
 
   @PostMapping("/me/items")
@@ -39,7 +48,7 @@ public class CartController {
       @AuthenticationPrincipal Jwt jwt,
       @RequestBody AddCartItemDto dto) {
 
-    return CartMapper.toDto(
+    return mapper.toDto(
         cartService.addItem(jwt, dto.productSku(), dto.quantity(), dto.components()));
   }
 
@@ -50,33 +59,118 @@ public class CartController {
       @AuthenticationPrincipal Jwt jwt) {
 
     CartItem item = cartService.setItemQuantity(jwt, itemId, quantity);
-    return new CartItemDto(itemId, item.getName(), item.getProduct().getImage(), item.getQuantity(),
-        item.getTotalPrice(), item.getProduct().getSkuPrefix(), item.getProduct().getName(), item.getComponents());
 
+    byte[] image = resolveCartItemImage(item);
+    String sku = item.getProduct() != null ? item.getProduct().getSkuPrefix() : null;
+    String name = item.getProduct() != null ? item.getProduct().getName() : null;
+
+    return new CartItemDto(
+            itemId,
+            item.getName(),
+            image,
+            item.getQuantity(),
+            item.getTotalPrice(),
+            sku,
+            name,
+            item.getComponents()
+    );
   }
 
   @PatchMapping("/me/items/{itemId}/components")
   public CartDto updateComponent(
-      @PathVariable UUID itemId,
-      @RequestParam String componentType,
-      @RequestParam String newProductSku,
-      @AuthenticationPrincipal Jwt jwt) {
+          @PathVariable UUID itemId,
+          @RequestParam String componentType,
+          @RequestParam String newProductSku,
+          @AuthenticationPrincipal Jwt jwt) {
 
     cartService.updateComponentInItem(jwt, itemId, componentType, newProductSku);
-    return CartMapper.toDto(cartService.getOrCreateActiveCart(jwt));
+    Cart cart = cartService.getOrCreateActiveCart(jwt);
+    return toDtoWithResolvedImages(cart);
   }
 
   @DeleteMapping("/me/items/{itemId}")
   public CartDto removeItem(
-      @PathVariable UUID itemId,
-      @AuthenticationPrincipal Jwt jwt) {
+          @PathVariable UUID itemId,
+          @AuthenticationPrincipal Jwt jwt) {
 
     cartService.removeItem(jwt, itemId);
-    return CartMapper.toDto(cartService.getOrCreateActiveCart(jwt));
+    Cart cart = cartService.getOrCreateActiveCart(jwt);
+    return toDtoWithResolvedImages(cart);
   }
+
 
   @PostMapping("/me/checkout")
   public CartDto checkout(@AuthenticationPrincipal Jwt jwt) {
-    return CartMapper.toDto(cartService.checkout(jwt));
+    return mapper.toDto(cartService.checkout(jwt));
   }
+
+  private byte[] resolveCartItemImage(CartItem item) {
+    if (item.getProduct() != null) return item.getProduct().getImage();
+
+    if (item.getComponents() == null || item.getComponents().isEmpty()) return null;
+
+    String caseSku = item.getComponents().get("CASE");
+    if (caseSku == null) caseSku = item.getComponents().get("CASE1"); // por si indexás
+
+    if (caseSku == null || caseSku.isBlank()) return null;
+
+    Product caseProduct = productService.getById(caseSku);
+    return caseProduct.getImage();
+  }
+
+  private CartDto toDtoWithResolvedImages(Cart cart) {
+    var items = cart.getItems() == null
+            ? java.util.List.<CartItemDto>of()
+            : cart.getItems().stream().map(this::toItemDtoWithImage).toList();
+    return new CartDto(
+            cart.getId(),
+            cart.getCreatedAt(),
+            cart.getUpdatedAt(),
+            cart.getStatus() != null ? cart.getStatus().name() : null,
+            items
+    );
+  }
+
+  private CartItemDto toItemDtoWithImage(CartItem item) {
+    byte[] image = resolveCartItemImage(item);
+
+    String sku = item.getProduct() != null ? item.getProduct().getSkuPrefix() : null;
+    String name = item.getProduct() != null ? item.getProduct().getName() : null;
+
+    return new CartItemDto(
+            item.getId(),
+            item.getName(),
+            image,
+            item.getQuantity(),
+            item.getTotalPrice(),
+            sku,
+            name,
+            item.getComponents()
+    );
+  }
+
+  @PatchMapping("/me/items/{itemId}/components/bulk")
+  public CartItemDto replaceComponents(
+          @PathVariable UUID itemId,
+          @RequestBody UpdateCartItemComponentsDto dto,
+          @AuthenticationPrincipal Jwt jwt
+  ) {
+    CartItem item = cartService.replaceComponents(jwt, itemId, dto.components());
+
+    byte[] image = resolveCartItemImage(item);
+    String sku = item.getProduct() != null ? item.getProduct().getSkuPrefix() : null;
+    String name = item.getProduct() != null ? item.getProduct().getName() : null;
+
+    return new CartItemDto(
+            item.getId(),
+            item.getName(),
+            image,
+            item.getQuantity(),
+            item.getTotalPrice(),
+            sku,
+            name,
+            item.getComponents()
+    );
+  }
+
 }

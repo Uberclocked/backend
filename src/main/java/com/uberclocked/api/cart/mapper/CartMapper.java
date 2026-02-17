@@ -4,14 +4,25 @@ import com.uberclocked.api.cart.model.dto.CartDto;
 import com.uberclocked.api.cart.model.dto.CartItemDto;
 import com.uberclocked.api.cart.model.entity.Cart;
 import com.uberclocked.api.cart.model.entity.CartItem;
-import java.util.List;
+import com.uberclocked.api.product.service.ProductService;
+import org.springframework.stereotype.Component;
 
+import java.util.List;
+import java.util.Map;
+
+@Component
 public class CartMapper {
 
-    public static CartDto toDto(Cart cart) {
-        List<CartItemDto> items = cart.getItems() == null
-                ? List.of()
-                : cart.getItems().stream().map(CartMapper::toItemDto).toList();
+    private final ProductService productService;
+
+    public CartMapper(ProductService productService) {
+        this.productService = productService;
+    }
+
+    public CartDto toDto(Cart cart) {
+        var items = cart.getItems() == null
+                ? List.<CartItemDto>of()
+                : cart.getItems().stream().map(this::toItemDto).toList();
 
         return new CartDto(
                 cart.getId(),
@@ -22,10 +33,20 @@ public class CartMapper {
         );
     }
 
-    private static CartItemDto toItemDto(CartItem item) {
+    private CartItemDto toItemDto(CartItem item) {
         String sku = item.getProduct() != null ? item.getProduct().getSkuPrefix() : null;
         String name = item.getProduct() != null ? item.getProduct().getName() : null;
-        byte[] image = item.getProduct() != null ? item.getProduct().getImage() : null;
+
+        byte[] image = null;
+
+        if (item.getProduct() != null) {
+            image = item.getProduct().getImage();
+        } else if (item.getComponents() != null) {
+            String caseSku = item.getComponents().get("CASE");
+            if (caseSku != null && !caseSku.isBlank()) {
+                image = productService.getById(caseSku).getImage();
+            }
+        }
 
         return new CartItemDto(
                 item.getId(),

@@ -11,6 +11,7 @@ import com.uberclocked.api.user.model.entity.User;
 import com.uberclocked.api.user.service.UsersService;
 import jakarta.transaction.Transactional;
 import java.time.LocalDateTime;
+import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 import org.springframework.security.oauth2.jwt.Jwt;
@@ -57,17 +58,24 @@ public class CartService {
   public Cart addItem(Jwt jwt, String productSku, Integer quantity, Map<String, String> components) {
     Cart cart = getOrCreateActiveCart(jwt);
 
-    if (quantity == null || quantity <= 0) {
-      throw new IllegalArgumentException("Quantity must be > 0");
-    }
+    if (quantity == null || quantity <= 0) throw new IllegalArgumentException("Quantity must be > 0");
+
     if (components != null && !components.isEmpty()) {
+      String caseSku = components.get("CASE");
+      if (caseSku == null || caseSku.isBlank()) throw new IllegalArgumentException("Custom PC requires CASE");
+
+      boolean hasCase = components.containsKey("CASE") && components.get("CASE") != null && !components.get("CASE").isBlank();
+      if (!hasCase) throw new IllegalArgumentException("Custom PC requires CASE");
+
       double totalPrice = 0;
+
       for (Map.Entry<String, String> entry : components.entrySet()) {
-        Product p = productService.getById(entry.getValue());
-        if (p.getStock() < quantity)
-          throw new IllegalArgumentException("Not enough stock for " + p.getName());
+        String sku = entry.getValue();
+        Product p = productService.getById(sku);
+        if (p.getStock() < quantity) throw new IllegalArgumentException("Not enough stock for " + p.getName());
         totalPrice += p.getPrice();
       }
+
       CartItem item = new CartItem();
       item.setCart(cart);
       item.setName("Custom PC");
@@ -187,7 +195,40 @@ public class CartService {
     for (String sku : item.getComponents().values()) {
       totalPrice += productService.getById(sku).getPrice();
     }
-    item.setTotalPrice(totalPrice);
+    item.setTotalPrice(totalPrice * item.getQuantity());
+    return itemRepository.save(item);
+  }
+
+  public CartItem replaceComponents(Jwt jwt, UUID itemId, Map<String, String> newComponents) {
+    if (newComponents == null || newComponents.isEmpty()) {
+      throw new IllegalArgumentException("components are required");
+    }
+
+    String caseSku = newComponents.get("CASE");
+    if (caseSku == null || caseSku.isBlank()) {
+      throw new IllegalArgumentException("Custom PC requires CASE");
+    }
+
+    User user = usersService.getUserOrCreate(jwt);
+    Cart cart = cartRepository.findByUserAndStatus(user, CartStatus.ACTIVE).orElseThrow();
+
+    CartItem item = itemRepository
+            .findByIdAndCartId(itemId, cart.getId())
+            .orElseThrow(() -> new IllegalArgumentException("Item not found"));
+
+    int qty = item.getQuantity();
+    double total = 0;
+
+    for (String sku : newComponents.values()) {
+      Product p = productService.getById(sku);
+      if (p.getStock() < qty) throw new IllegalArgumentException("Not enough stock for " + p.getName());
+      total += p.getPrice();
+    }
+
+    item.setComponents(newComponents);
+    item.setName("Custom PC");
+    item.setTotalPrice(total * qty);
+
     return itemRepository.save(item);
   }
 }

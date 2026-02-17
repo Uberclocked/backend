@@ -52,7 +52,7 @@ public class PurchaseService {
     purchase.setUser(user);
     purchase.setCart(cart);
     purchase.setTotalAmount(total);
-    purchase.setStatus(PurchaseStatus.CREATED);
+    purchase.setStatus(PurchaseStatus.PAID);
     purchase.setCreatedAt(LocalDateTime.now());
     purchase.setUpdatedAt(LocalDateTime.now());
 
