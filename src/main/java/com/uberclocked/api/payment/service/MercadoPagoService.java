@@ -4,7 +4,13 @@ import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.UUID;
 
+import com.uberclocked.api.market.service.PostInterestService;
+import com.uberclocked.api.market.service.PostService;
+import com.uberclocked.api.payment.model.dto.InterestedInfoPaymentDto;
+import com.uberclocked.api.payment.model.dto.InterestedInfoPreferenceRequest;
+import com.uberclocked.api.user.model.entity.User;
 import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -34,12 +40,14 @@ public class MercadoPagoService {
   private final MercadoPagoRepository mpRepository;
   private final CartService cartService;
   private final PurchaseService purchaseService;
+  private final PostInterestService postService;
 
   public MercadoPagoService(CartService cartService, PurchaseService purchaseService,
-      MercadoPagoRepository mpRepository) {
+      MercadoPagoRepository mpRepository, PostInterestService postService) {
     this.cartService = cartService;
     this.purchaseService = purchaseService;
     this.mpRepository = mpRepository;
+    this.postService = postService;
   }
 
   @Transactional
@@ -113,4 +121,86 @@ public class MercadoPagoService {
         .build();
     return new PreferenceDto(mpRepository.createPreference(request).getId());
   }
+
+  @Transactional
+  public PaymentDto createInterestedInfoPayment(Jwt jwt, InterestedInfoPaymentDto body) {
+
+    BigDecimal amount = BigDecimal.valueOf(50);
+
+    String externalRef = "INTEREST_INFO:" + body.postId() + ":" + body.interestedUserId();
+
+    Payment payment = mpRepository.createPayment(
+            PaymentCreateRequest.builder()
+                    .token(body.token())
+                    .paymentMethodId(body.paymentMethodId())
+                    .issuerId(body.issuerId())
+                    .installments(body.installments())
+                    .transactionAmount(amount)
+                    .payer(PaymentPayerRequest.builder()
+                            .email(body.payer().email())
+                            .identification(IdentificationRequest.builder()
+                                    .type(body.payer().identification().type())
+                                    .number(body.payer().identification().number())
+                                    .build())
+                            .build())
+                    .externalReference(externalRef)
+                    .build()
+    );
+
+    PaymentStatus status = switch (payment.getStatus()) {
+      case "approved" -> PaymentStatus.APPROVED;
+      case "pending" -> PaymentStatus.PENDING;
+      default -> PaymentStatus.FAILURE;
+    };
+
+    if (status == PaymentStatus.APPROVED) {
+
+      String[] parts = externalRef.split(":");
+      UUID postId = UUID.fromString(parts[1]);
+      UUID interestedUserId = UUID.fromString(parts[2]);
+
+      User interestedUser =
+              postService.buyInterestedInfo(postId, interestedUserId, jwt);
+    }
+    return new PaymentDto(null, payment.getId(), status);
+  }
+
+  @Transactional
+  public PreferenceDto createInterestedInfoPreference(
+          Jwt jwt,
+          InterestedInfoPreferenceRequest body
+  ) {
+
+    BigDecimal unitPrice = BigDecimal.valueOf(50);
+
+    List<PreferenceItemRequest> items = List.of(
+            PreferenceItemRequest.builder()
+                    .id(body.interestedUserId().toString())
+                    .title("Interested user contact information")
+                    .quantity(1)
+                    .currencyId("ARS")
+                    .unitPrice(unitPrice)
+                    .build()
+    );
+
+    String externalRef =
+            "INTEREST_INFO:" + body.postId() + ":" + body.interestedUserId();
+
+    PreferenceRequest request = PreferenceRequest.builder()
+            .items(items)
+            .externalReference(externalRef)
+            .backUrls(
+                    PreferenceBackUrlsRequest.builder()
+                            .success("http://localhost:3000/payment/success")
+                            .failure("http://localhost:3000/payment/failure")
+                            .pending("http://localhost:3000/payment/pending")
+                            .build()
+            )
+            .build();
+
+    return new PreferenceDto(
+            mpRepository.createPreference(request).getId()
+    );
+  }
+
 }

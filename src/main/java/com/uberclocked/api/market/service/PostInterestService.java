@@ -1,5 +1,6 @@
 package com.uberclocked.api.market.service;
 
+import com.uberclocked.api.emailData.EmailService;
 import com.uberclocked.api.market.mapper.PostInterestMapper;
 import com.uberclocked.api.market.model.dto.PostInterestDto;
 import com.uberclocked.api.market.model.entity.Post;
@@ -18,14 +19,17 @@ public class PostInterestService {
   private final PostService postService;
   private final PostInterestRepository interestRepository;
   private final UsersService usersService;
+  private final EmailService emailService;
 
   public PostInterestService(
       PostService postService,
       PostInterestRepository interestRepository,
-      UsersService usersService) {
+      UsersService usersService,
+      EmailService emailService) {
     this.postService = postService;
     this.interestRepository = interestRepository;
     this.usersService = usersService;
+    this.emailService = emailService;
   }
 
   public void markInterest(UUID postId, Jwt jwt) {
@@ -72,8 +76,12 @@ public class PostInterestService {
     if (!interest.isInfoPurchased()) {
       interest.setInfoPurchased(true);
       interestRepository.save(interest);
+      emailService.sendInterestedInfoEmail(
+              seller.getEmail(),
+              "Information of the interested - UberClocked",
+              buildInterestedBody(post, interested)
+      );
     }
-
     return interested;
   }
 
@@ -108,5 +116,30 @@ public class PostInterestService {
     }
 
     return interestRepository.existsByPostAndInterested(post, user);
+  }
+
+
+  private String buildInterestedBody(Post post, User interested) {
+    return """
+    You have successfully purchased the contact information of an interested user for your post:
+
+    Post: %s
+
+    Interested User Details:
+    Username: %s
+    Email: %s
+   Phone: %s
+    Country: %s
+
+    You can now contact this user directly.
+
+    Thank you for using UberClocked.
+   """.formatted(
+            post.getTitle(),
+            interested.getUserName(),
+            interested.getEmail(),
+            interested.getCellPhone(),
+            interested.getCountry()
+    );
   }
 }
