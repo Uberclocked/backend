@@ -6,6 +6,7 @@ import com.uberclocked.api.cart.model.entity.Cart;
 import com.uberclocked.api.cart.model.entity.CartItem;
 import com.uberclocked.api.product.model.entity.Product;
 import com.uberclocked.api.product.service.ProductService;
+import com.uberclocked.api.promotion.model.dto.PromotionLiteDto;
 import org.springframework.stereotype.Component;
 
 import java.util.HashMap;
@@ -23,16 +24,28 @@ public class CartMapper {
     }
 
     public CartDto toDto(Cart cart) {
-        var items = cart.getItems() == null
-                ? List.<CartItemDto>of()
-                : cart.getItems().stream().map(this::toItemDto).toList();
+        PromotionLiteDto promo = null;
+        if (cart.getAppliedPromotion() != null) {
+            var p = cart.getAppliedPromotion();
+            promo = new PromotionLiteDto(
+                    p.getId(),
+                    p.getCode(),
+                    p.getDiscount(),
+                    p.getTitle(),
+                    p.getDescription(),
+                    p.getStartDate(),
+                    p.getEndDate()
+            );
+        }
 
         return new CartDto(
                 cart.getId(),
                 cart.getCreatedAt(),
                 cart.getUpdatedAt(),
-                cart.getStatus() != null ? cart.getStatus().name() : null,
-                items
+                cart.getStatus().name(),
+                cart.getItems().stream().map(this::toItemDto).toList(),
+                promo,
+                cart.getDiscountAmount()
         );
     }
 

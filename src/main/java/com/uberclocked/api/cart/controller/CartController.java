@@ -12,6 +12,10 @@ import java.util.UUID;
 
 import com.uberclocked.api.product.model.entity.Product;
 import com.uberclocked.api.product.service.ProductService;
+import com.uberclocked.api.promotion.model.dto.ApplyCouponRequest;
+import com.uberclocked.api.promotion.service.CartPromotionService;
+import jakarta.persistence.EntityNotFoundException;
+import org.springframework.data.crossstore.ChangeSetPersister;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -31,11 +35,13 @@ public class CartController {
   private final CartService cartService;
   private final ProductService productService;
   private final CartMapper mapper;
+  private final CartPromotionService cartPromotionService;
 
-  public CartController(CartService cartService, ProductService productService, CartMapper mapper) {
+  public CartController(CartService cartService, ProductService productService, CartMapper mapper, CartPromotionService cartPromotionService) {
     this.cartService = cartService;
     this.productService = productService;
     this.mapper = mapper;
+    this.cartPromotionService = cartPromotionService;
   }
 
   @GetMapping("/me")
@@ -109,4 +115,20 @@ public class CartController {
     return mapper.toDto(cartService.getOrCreateActiveCart(jwt));
   }
 
+  @PostMapping("/coupon/apply")
+  public CartDto apply(@AuthenticationPrincipal Jwt jwt, @RequestBody ApplyCouponRequest req) {
+    try {
+      return mapper.toDto(cartPromotionService.applyCoupon(jwt, req.code()));
+    }catch (Exception e) {
+      throw new EntityNotFoundException("Coupon not found: " + req.code());
+    }
+  }
+
+  @PostMapping("/coupon/remove")
+  public CartDto remove(@AuthenticationPrincipal Jwt jwt) {
+    try {
+      return mapper.toDto(cartPromotionService.removeCoupon(jwt));
+    }catch (Exception e) {
+    throw new EntityNotFoundException("Coupon not found");}
+  }
 }

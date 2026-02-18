@@ -1,5 +1,6 @@
 package com.uberclocked.api.cart.model.entity;
 
+import com.uberclocked.api.promotion.model.entity.Promotion;
 import com.uberclocked.api.user.model.entity.User;
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Entity;
@@ -48,4 +49,11 @@ public class Cart {
   public List<CartItem> items() {
     return new ArrayList<>(items);
   }
+
+  @ManyToOne
+  @Setter
+  private Promotion appliedPromotion;
+
+  @Setter
+  private Double discountAmount;
 }

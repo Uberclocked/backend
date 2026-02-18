@@ -1,7 +1,6 @@
 package com.uberclocked.api.purchase.service;
 
 import com.uberclocked.api.cart.model.entity.Cart;
-import com.uberclocked.api.cart.model.entity.CartItem;
 import com.uberclocked.api.cart.service.CartService;
 import com.uberclocked.api.emailData.EmailService;
 import com.uberclocked.api.purchase.model.dto.UpdatePurchaseDto;
@@ -27,7 +26,11 @@ public class PurchaseService {
   private final EmailService emailService;
 
   public PurchaseService(
-      PurchaseRepository purchaseRepository, CartService cartService, UsersService usersService, EmailService emailService) {
+          PurchaseRepository purchaseRepository,
+          CartService cartService,
+          UsersService usersService,
+          EmailService emailService
+  ) {
     this.purchaseRepository = purchaseRepository;
     this.cartService = cartService;
     this.usersService = usersService;
@@ -40,21 +43,19 @@ public class PurchaseService {
 
   public Purchase createPurchase(Jwt jwt) {
     User user = usersService.getUserOrCreate(jwt);
+
     Cart cart = cartService.checkout(jwt);
 
-    if (cart.getItems().isEmpty()) {
+    if (cart.getItems() == null || cart.getItems().isEmpty()) {
       throw new IllegalStateException("Cart is empty");
     }
 
-    double total = 0;
-    for (CartItem item : cart.getItems()) {
-      total += item.getTotalPrice();
-    }
+    double totalToPay = cartService.totalToPay(cart);
 
     Purchase purchase = new Purchase();
     purchase.setUser(user);
     purchase.setCart(cart);
-    purchase.setTotalAmount(total);
+    purchase.setTotalAmount(totalToPay);
     purchase.setStatus(PurchaseStatus.PAID);
     purchase.setCreatedAt(LocalDateTime.now());
     purchase.setUpdatedAt(LocalDateTime.now());
@@ -73,7 +74,6 @@ public class PurchaseService {
 
   @Transactional
   public Purchase updatePurchase(UUID id, UpdatePurchaseDto dto, Jwt jwt) {
-
     Purchase purchase = purchaseRepository
             .findById(id)
             .orElseThrow(() -> new IllegalArgumentException("Purchase not found"));
@@ -99,20 +99,15 @@ public class PurchaseService {
     Purchase saved = purchaseRepository.save(purchase);
 
     if (statusChanged || pickupChanged) {
-
       StringBuilder body = new StringBuilder();
       body.append("Your purchase has been updated.\n\n");
 
       if (statusChanged) {
-        body.append("New status: ")
-                .append(saved.getStatus())
-                .append("\n");
+        body.append("New status: ").append(saved.getStatus()).append("\n");
       }
 
       if (pickupChanged && saved.getPickupDate() != null) {
-        body.append("Scheduled pickup date: ")
-                .append(saved.getPickupDate())
-                .append("\n");
+        body.append("Scheduled pickup date: ").append(saved.getPickupDate()).append("\n");
       }
 
       emailService.sendMail(
@@ -127,8 +122,8 @@ public class PurchaseService {
 
   public void deletePurchase(UUID id, Jwt jwt) {
     Purchase purchase = purchaseRepository
-        .findById(id)
-        .orElseThrow(() -> new IllegalArgumentException("Purchase not found"));
+            .findById(id)
+            .orElseThrow(() -> new IllegalArgumentException("Purchase not found"));
 
     purchase.setStatus(PurchaseStatus.CANCELLED);
     purchaseRepository.save(purchase);
