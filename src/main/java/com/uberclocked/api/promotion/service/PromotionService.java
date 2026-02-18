@@ -12,6 +12,7 @@ import java.time.LocalDateTime;
 import java.util.List;
 import java.util.UUID;
 
+import com.uberclocked.api.wheel.model.dto.WheelDto;
 import jakarta.transaction.Transactional;
 import org.springframework.stereotype.Service;
 
@@ -156,5 +157,52 @@ public class PromotionService {
     if (!includes.isEmpty()) return matchesAny(includes, cart);
 
     return true;
+  }
+
+  @Transactional
+  public WheelDto.PromotionDto createWheelPromotion(
+          String userId,
+          String prizeLabel,
+          int discount,
+          List<WheelDto.PromotionTargetBody> targets
+  ) {
+    String code = "WHEEL-" + UUID.randomUUID().toString().replace("-", "")
+            .substring(0, 8).toUpperCase();
+
+    Promotion p = new Promotion();
+    p.setCode(code);
+    p.setDiscount(discount);
+    p.setTitle("Daily Spin");
+    p.setDescription("Prize: " + prizeLabel);
+    p.setActive(true);
+    p.setMaxUses(1);
+    p.setEndDate(LocalDateTime.now().plusDays(1));
+    p.setStartDate(LocalDateTime.now());
+
+    User user = userService.getUSerById(userId);
+    p.setUser(user);
+
+    if (targets != null && !targets.isEmpty()) {
+      for (var t : targets) {
+        PromotionTarget pt = new PromotionTarget();
+        pt.setPromotion(p);
+        pt.setKind(PromotionTarget.TargetKind.valueOf(t.kind));
+        pt.setMode(PromotionTarget.TargetMode.valueOf(t.mode));
+        pt.setSku(t.sku);
+        pt.setComponentType(t.componentType);
+        p.getTargets().add(pt);
+      }
+    }
+
+    Promotion saved = promotionRepository.save(p);
+
+    var dto = new WheelDto.PromotionDto();
+    dto.id = saved.getId();
+    dto.code = saved.getCode();
+    dto.discount = saved.getDiscount();
+    dto.userId = saved.getUser().getId();
+    dto.active = saved.isActive();
+    dto.maxUses = saved.getMaxUses();
+    return dto;
   }
 }

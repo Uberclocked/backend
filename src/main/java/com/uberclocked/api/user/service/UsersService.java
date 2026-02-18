@@ -76,6 +76,11 @@ public class UsersService {
     throw new ResourceDoesNotExistsException("User does not exists.");
   }
 
+  public User getUSerById(String auth0Id) {
+    return usersRepository.findByAuth0Id(auth0Id)
+            .orElseThrow(() -> new IllegalStateException("User not found for auth0Id: " + auth0Id));
+  }
+
   public User updateData(Jwt jwt, UserDataDto dataDto) {
     User user =
         usersRepository
