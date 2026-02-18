@@ -63,11 +63,13 @@ public class CartController {
     byte[] image = resolveCartItemImage(item);
     String sku = item.getProduct() != null ? item.getProduct().getSkuPrefix() : null;
     String name = item.getProduct() != null ? item.getProduct().getName() : null;
+    Integer stock = item.getProduct() != null ? item.getProduct().getStock() : null;
 
     return new CartItemDto(
             itemId,
             item.getName(),
             image,
+            stock,
             item.getQuantity(),
             item.getTotalPrice(),
             sku,
@@ -136,11 +138,13 @@ public class CartController {
 
     String sku = item.getProduct() != null ? item.getProduct().getSkuPrefix() : null;
     String name = item.getProduct() != null ? item.getProduct().getName() : null;
+    Integer stock = item.getProduct() != null ? item.getProduct().getStock() : null;
 
     return new CartItemDto(
             item.getId(),
             item.getName(),
             image,
+            stock,
             item.getQuantity(),
             item.getTotalPrice(),
             sku,
@@ -160,11 +164,13 @@ public class CartController {
     byte[] image = resolveCartItemImage(item);
     String sku = item.getProduct() != null ? item.getProduct().getSkuPrefix() : null;
     String name = item.getProduct() != null ? item.getProduct().getName() : null;
+    Integer stock = item.getProduct() != null ? item.getProduct().getStock() : null;
 
     return new CartItemDto(
-            item.getId(),
+            itemId,
             item.getName(),
             image,
+            stock,
             item.getQuantity(),
             item.getTotalPrice(),
             sku,

@@ -51,7 +51,6 @@ public class PurchaseController {
   @PreAuthorize("hasRole('Admin')")
   public PurchaseResponseDto update(
       @PathVariable UUID id, @RequestBody UpdatePurchaseDto dto, @AuthenticationPrincipal Jwt jwt) {
-
     return purchaseMapper.toDto(purchaseService.updatePurchase(id, dto, jwt));
   }
 

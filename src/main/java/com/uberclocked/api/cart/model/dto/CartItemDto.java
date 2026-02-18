@@ -7,6 +7,7 @@ public record CartItemDto(
         UUID id,
         String name,
         byte[] image,
+        Integer stock,
         Integer quantity,
         double totalPrice,
         String productSku,

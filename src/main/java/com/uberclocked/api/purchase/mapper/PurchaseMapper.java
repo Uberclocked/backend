@@ -39,6 +39,7 @@ public class PurchaseMapper {
                 item.getId(),
                 item.getName(),
                 item.getProduct() != null ? item.getProduct().getImage() : null,
+                item.getProduct() != null ? item.getProduct().getStock() : null,
                 item.getQuantity(),
                 item.getTotalPrice(),
                 item.getProduct() != null ? item.getProduct().getSkuPrefix() : null,

@@ -36,6 +36,7 @@ public class CartMapper {
     private CartItemDto toItemDto(CartItem item) {
         String sku = item.getProduct() != null ? item.getProduct().getSkuPrefix() : null;
         String name = item.getProduct() != null ? item.getProduct().getName() : null;
+        Integer stock = item.getProduct() != null ? item.getProduct().getStock() : null;
 
         byte[] image = null;
 
@@ -52,6 +53,7 @@ public class CartMapper {
                 item.getId(),
                 item.getName(),
                 image,
+                stock,
                 item.getQuantity(),
                 item.getTotalPrice(),
                 sku,
