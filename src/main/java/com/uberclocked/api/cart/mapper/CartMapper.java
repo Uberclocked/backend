@@ -4,11 +4,14 @@ import com.uberclocked.api.cart.model.dto.CartDto;
 import com.uberclocked.api.cart.model.dto.CartItemDto;
 import com.uberclocked.api.cart.model.entity.Cart;
 import com.uberclocked.api.cart.model.entity.CartItem;
+import com.uberclocked.api.product.model.entity.Product;
 import com.uberclocked.api.product.service.ProductService;
 import org.springframework.stereotype.Component;
 
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+
 
 @Component
 public class CartMapper {
@@ -33,20 +36,32 @@ public class CartMapper {
         );
     }
 
-    private CartItemDto toItemDto(CartItem item) {
-        String sku = item.getProduct() != null ? item.getProduct().getSkuPrefix() : null;
-        String name = item.getProduct() != null ? item.getProduct().getName() : null;
-        Integer stock = item.getProduct() != null ? item.getProduct().getStock() : null;
+    public CartItemDto toItemDto(CartItem item) {
+        String productSku = item.getProduct() != null ? item.getProduct().getSkuPrefix() : null;
+        String productName = item.getProduct() != null ? item.getProduct().getName() : null;
 
-        byte[] image = null;
+        byte[] image = resolveCartItemImage(item);
+
+        Integer stock = null;
+        Integer availableStock = null;
+        Map<String, Integer> componentsStock = null;
 
         if (item.getProduct() != null) {
-            image = item.getProduct().getImage();
-        } else if (item.getComponents() != null) {
-            String caseSku = item.getComponents().get("CASE");
-            if (caseSku != null && !caseSku.isBlank()) {
-                image = productService.getById(caseSku).getImage();
+            stock = item.getProduct().getStock();
+            availableStock = stock;
+        }
+        else if (item.getComponents() != null && !item.getComponents().isEmpty()) {
+            componentsStock = new HashMap<>();
+            int min = Integer.MAX_VALUE;
+
+            for (String sku : item.getComponents().values()) {
+                Product p = productService.getById(sku);
+                componentsStock.put(sku, p.getStock());
+                min = Math.min(min, p.getStock());
             }
+
+            availableStock = (min == Integer.MAX_VALUE) ? 0 : min;
+            stock = availableStock;
         }
 
         return new CartItemDto(
@@ -54,11 +69,25 @@ public class CartMapper {
                 item.getName(),
                 image,
                 stock,
+                availableStock,
                 item.getQuantity(),
                 item.getTotalPrice(),
-                sku,
-                name,
-                item.getComponents()
+                productSku,
+                productName,
+                item.getComponents(),
+                componentsStock
         );
+    }
+
+    private byte[] resolveCartItemImage(CartItem item) {
+        if (item.getProduct() != null) return item.getProduct().getImage();
+
+        if (item.getComponents() == null || item.getComponents().isEmpty()) return null;
+
+        String caseSku = item.getComponents().get("CASE");
+        if (caseSku == null) caseSku = item.getComponents().get("CASE1"); // por si indexás
+        if (caseSku == null || caseSku.isBlank()) return null;
+
+        return productService.getById(caseSku).getImage();
     }
 }

@@ -53,29 +53,13 @@ public class CartController {
   }
 
   @PatchMapping("/me/items/{itemId}")
-  public CartItemDto updateItem(
-      @PathVariable UUID itemId,
-      @RequestParam Integer quantity,
-      @AuthenticationPrincipal Jwt jwt) {
+  public CartDto updateItem(
+          @PathVariable UUID itemId,
+          @RequestParam Integer quantity,
+          @AuthenticationPrincipal Jwt jwt) {
 
-    CartItem item = cartService.setItemQuantity(jwt, itemId, quantity);
-
-    byte[] image = resolveCartItemImage(item);
-    String sku = item.getProduct() != null ? item.getProduct().getSkuPrefix() : null;
-    String name = item.getProduct() != null ? item.getProduct().getName() : null;
-    Integer stock = item.getProduct() != null ? item.getProduct().getStock() : null;
-
-    return new CartItemDto(
-            itemId,
-            item.getName(),
-            image,
-            stock,
-            item.getQuantity(),
-            item.getTotalPrice(),
-            sku,
-            name,
-            item.getComponents()
-    );
+    cartService.setItemQuantity(jwt, itemId, quantity);
+    return mapper.toDto(cartService.getOrCreateActiveCart(jwt));
   }
 
   @PatchMapping("/me/items/{itemId}/components")
@@ -86,18 +70,13 @@ public class CartController {
           @AuthenticationPrincipal Jwt jwt) {
 
     cartService.updateComponentInItem(jwt, itemId, componentType, newProductSku);
-    Cart cart = cartService.getOrCreateActiveCart(jwt);
-    return toDtoWithResolvedImages(cart);
+    return mapper.toDto(cartService.getOrCreateActiveCart(jwt));
   }
 
   @DeleteMapping("/me/items/{itemId}")
-  public CartDto removeItem(
-          @PathVariable UUID itemId,
-          @AuthenticationPrincipal Jwt jwt) {
-
+  public CartDto removeItem(@PathVariable UUID itemId, @AuthenticationPrincipal Jwt jwt) {
     cartService.removeItem(jwt, itemId);
-    Cart cart = cartService.getOrCreateActiveCart(jwt);
-    return toDtoWithResolvedImages(cart);
+    return mapper.toDto(cartService.getOrCreateActiveCart(jwt));
   }
 
 
@@ -120,63 +99,14 @@ public class CartController {
     return caseProduct.getImage();
   }
 
-  private CartDto toDtoWithResolvedImages(Cart cart) {
-    var items = cart.getItems() == null
-            ? java.util.List.<CartItemDto>of()
-            : cart.getItems().stream().map(this::toItemDtoWithImage).toList();
-    return new CartDto(
-            cart.getId(),
-            cart.getCreatedAt(),
-            cart.getUpdatedAt(),
-            cart.getStatus() != null ? cart.getStatus().name() : null,
-            items
-    );
-  }
-
-  private CartItemDto toItemDtoWithImage(CartItem item) {
-    byte[] image = resolveCartItemImage(item);
-
-    String sku = item.getProduct() != null ? item.getProduct().getSkuPrefix() : null;
-    String name = item.getProduct() != null ? item.getProduct().getName() : null;
-    Integer stock = item.getProduct() != null ? item.getProduct().getStock() : null;
-
-    return new CartItemDto(
-            item.getId(),
-            item.getName(),
-            image,
-            stock,
-            item.getQuantity(),
-            item.getTotalPrice(),
-            sku,
-            name,
-            item.getComponents()
-    );
-  }
-
   @PatchMapping("/me/items/{itemId}/components/bulk")
-  public CartItemDto replaceComponents(
+  public CartDto replaceComponents(
           @PathVariable UUID itemId,
           @RequestBody UpdateCartItemComponentsDto dto,
-          @AuthenticationPrincipal Jwt jwt
-  ) {
-    CartItem item = cartService.replaceComponents(jwt, itemId, dto.components());
+          @AuthenticationPrincipal Jwt jwt) {
 
-    byte[] image = resolveCartItemImage(item);
-    String sku = item.getProduct() != null ? item.getProduct().getSkuPrefix() : null;
-    String name = item.getProduct() != null ? item.getProduct().getName() : null;
-    Integer stock = item.getProduct() != null ? item.getProduct().getStock() : null;
-
-    return new CartItemDto(
-            itemId,
-            item.getName(),
-            image,
-            stock,
-            item.getQuantity(),
-            item.getTotalPrice(),
-            sku,
-            name,
-            item.getComponents()
-    );
+    cartService.replaceComponents(jwt, itemId, dto.components());
+    return mapper.toDto(cartService.getOrCreateActiveCart(jwt));
   }
 
 }

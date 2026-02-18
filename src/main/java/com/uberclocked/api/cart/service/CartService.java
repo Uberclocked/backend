@@ -103,6 +103,7 @@ public class CartService {
       if (product.getStock() < quantity) {
         throw new IllegalArgumentException("Not enough stock for " + product.getName());
       }
+
       CartItem item = new CartItem();
       item.setName(product.getName());
       item.setCart(cart);
@@ -130,6 +131,22 @@ public class CartService {
     if (quantity <= 0) {
       itemRepository.delete(item);
       return item;
+    }
+    if (item.getProduct() != null) {
+      Product p = productService.getById(item.getProduct().getSkuPrefix());
+      if (p.getStock() < quantity) {
+        throw new IllegalArgumentException("Not enough stock for " + p.getName());
+      }
+    } else {
+      if (item.getComponents() == null || item.getComponents().isEmpty()) {
+        throw new IllegalArgumentException("Custom PC has no components");
+      }
+      for (String sku : item.getComponents().values()) {
+        Product p = productService.getById(sku);
+        if (p.getStock() < quantity) {
+          throw new IllegalArgumentException("Not enough stock for " + p.getName());
+        }
+      }
     }
 
     item.setQuantity(quantity);

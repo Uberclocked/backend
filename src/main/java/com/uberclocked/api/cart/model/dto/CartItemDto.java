@@ -8,9 +8,11 @@ public record CartItemDto(
         String name,
         byte[] image,
         Integer stock,
+        Integer availableStock,
         Integer quantity,
         double totalPrice,
         String productSku,
         String productName,
-        Map<String, String> components
+        Map<String, String> components,
+        Map<String, Integer> componentsStock
 ) {}

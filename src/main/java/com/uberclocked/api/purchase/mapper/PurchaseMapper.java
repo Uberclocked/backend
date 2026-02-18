@@ -1,5 +1,6 @@
 package com.uberclocked.api.purchase.mapper;
 
+import com.uberclocked.api.cart.mapper.CartMapper;
 import com.uberclocked.api.cart.model.dto.CartItemDto;
 import com.uberclocked.api.cart.model.entity.CartItem;
 import com.uberclocked.api.purchase.model.dto.PurchaseResponseDto;
@@ -11,8 +12,16 @@ import java.util.List;
 @Component
 public class PurchaseMapper {
 
+    private final CartMapper cartMapper;
+
+    public PurchaseMapper(CartMapper cartMapper) {
+        this.cartMapper = cartMapper;
+    }
+
     public PurchaseResponseDto toDto(Purchase purchase) {
         if (purchase == null) return null;
+
+        var cart = purchase.getCart();
 
         return new PurchaseResponseDto(
                 purchase.getId(),
@@ -21,30 +30,14 @@ public class PurchaseMapper {
                 purchase.getCreatedAt(),
                 purchase.getUpdatedAt(),
                 purchase.getPickupDate(),
-                purchase.getCart().getId(),
-                toCartItemDtoList(purchase.getCart().getItems())
+                cart.getId(),
+                cart.getItems() == null
+                        ? List.<CartItemDto>of()
+                        : cart.getItems().stream().map(cartMapper::toItemDto).toList()
         );
     }
 
     public List<PurchaseResponseDto> toDtoList(List<Purchase> purchases) {
         return purchases.stream().map(this::toDto).toList();
-    }
-
-    private List<CartItemDto> toCartItemDtoList(List<CartItem> items) {
-        return items.stream().map(this::toCartItemDto).toList();
-    }
-
-    private CartItemDto toCartItemDto(CartItem item) {
-        return new CartItemDto(
-                item.getId(),
-                item.getName(),
-                item.getProduct() != null ? item.getProduct().getImage() : null,
-                item.getProduct() != null ? item.getProduct().getStock() : null,
-                item.getQuantity(),
-                item.getTotalPrice(),
-                item.getProduct() != null ? item.getProduct().getSkuPrefix() : null,
-                item.getProduct() != null ? item.getProduct().getName() : null,
-                item.getComponents()
-        );
     }
 }
