@@ -6,6 +6,8 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
+import com.uberclocked.api.emailData.AdminConfig;
+import com.uberclocked.api.emailData.EmailService;
 import com.uberclocked.api.market.service.PostInterestService;
 import com.uberclocked.api.market.service.PostService;
 import com.uberclocked.api.payment.model.dto.InterestedInfoPaymentDto;
@@ -42,12 +44,23 @@ public class MercadoPagoService {
   private final PurchaseService purchaseService;
   private final PostInterestService postService;
 
-  public MercadoPagoService(CartService cartService, PurchaseService purchaseService,
-      MercadoPagoRepository mpRepository, PostInterestService postService) {
+  private final AdminConfig adminConfig;
+  private final EmailService emailService;
+
+  public MercadoPagoService(
+          CartService cartService,
+          PurchaseService purchaseService,
+          MercadoPagoRepository mpRepository,
+          PostInterestService postService,
+          AdminConfig adminConfig,
+          EmailService emailService
+  ) {
     this.cartService = cartService;
     this.purchaseService = purchaseService;
     this.mpRepository = mpRepository;
     this.postService = postService;
+    this.adminConfig = adminConfig;
+    this.emailService = emailService;
   }
 
   @Transactional
@@ -87,6 +100,19 @@ public class MercadoPagoService {
                     .build())
             .externalReference(myPurchase.getId().toString())
             .build());
+    String subject = "New order received - UberClocked";
+    String bodyText =
+            "A new order has been received.\n\n" +
+                    "Purchase ID: " + myPurchase.getId() + "\n" +
+                    "User: " + myPurchase.getUser().getUserName() + "\n" +
+                    "Email: " + myPurchase.getUser().getEmail() + "\n" +
+                    "Total: $" + myPurchase.getTotalAmount();
+
+    try {
+      emailService.sendToMany(adminConfig.getAdminEmails(), subject, bodyText);
+    } catch (Exception e) {
+      System.out.println("Could not send admin notification");
+    }
     return new PaymentDto(myPurchase.getId(), payment.getId(), PaymentStatus.APPROVED);
   }
 
@@ -126,43 +152,49 @@ public class MercadoPagoService {
   public PaymentDto createInterestedInfoPayment(Jwt jwt, InterestedInfoPaymentDto body) {
 
     BigDecimal amount = BigDecimal.valueOf(50);
-
     String externalRef = "INTEREST_INFO:" + body.postId() + ":" + body.interestedUserId();
 
-    Payment payment = mpRepository.createPayment(
-            PaymentCreateRequest.builder()
-                    .token(body.token())
-                    .paymentMethodId(body.paymentMethodId())
-                    .issuerId(body.issuerId())
-                    .installments(body.installments())
-                    .transactionAmount(amount)
-                    .payer(PaymentPayerRequest.builder()
-                            .email(body.payer().email())
-                            .identification(IdentificationRequest.builder()
-                                    .type(body.payer().identification().type())
-                                    .number(body.payer().identification().number())
-                                    .build())
-                            .build())
-                    .externalReference(externalRef)
+    List<PaymentItemRequest> items = List.of(
+            PaymentItemRequest.builder()
+                    .id(body.interestedUserId().toString())
+                    .title("Interested user contact information")
+                    .quantity(1)
+                    .unitPrice(amount)
                     .build()
     );
 
-    PaymentStatus status = switch (payment.getStatus()) {
-      case "approved" -> PaymentStatus.APPROVED;
-      case "pending" -> PaymentStatus.PENDING;
-      default -> PaymentStatus.FAILURE;
-    };
+    PaymentPayerRequest payer = PaymentPayerRequest.builder()
+            .email(body.payer().email())
+            .identification(
+                    IdentificationRequest.builder()
+                            .type(body.payer().identification().type())
+                            .number(body.payer().identification().number())
+                            .build()
+            )
+            .build();
 
-    if (status == PaymentStatus.APPROVED) {
+    PaymentCreateRequest request = PaymentCreateRequest.builder()
+            .token(body.token())
+            .paymentMethodId(body.paymentMethodId())
+            .issuerId(body.issuerId())
+            .installments(body.installments())
+            .transactionAmount(amount)
+            .additionalInfo(PaymentAdditionalInfoRequest.builder().items(items).build())
+            .payer(payer)
+            .externalReference(externalRef)
+            .description("Interested info purchase")
+            .build();
+
+    Payment payment = mpRepository.createPayment(request);
 
       String[] parts = externalRef.split(":");
       UUID postId = UUID.fromString(parts[1]);
       UUID interestedUserId = UUID.fromString(parts[2]);
 
-      User interestedUser =
-              postService.buyInterestedInfo(postId, interestedUserId, jwt);
-    }
-    return new PaymentDto(null, payment.getId(), status);
+      postService.buyInterestedInfo(postId, interestedUserId, jwt);
+
+
+    return new PaymentDto(null, payment.getId(), PaymentStatus.APPROVED);
   }
 
   @Transactional
@@ -191,9 +223,9 @@ public class MercadoPagoService {
             .externalReference(externalRef)
             .backUrls(
                     PreferenceBackUrlsRequest.builder()
-                            .success("http://localhost:3000/payment/success")
-                            .failure("http://localhost:3000/payment/failure")
-                            .pending("http://localhost:3000/payment/pending")
+                            .success("http://localhost:5173/payment/success")
+                            .failure("http://localhost:5173/payment/failure")
+                            .pending("http://localhost:5173/payment/pending")
                             .build()
             )
             .build();

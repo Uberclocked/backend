@@ -76,7 +76,7 @@ public class PostInterestService {
     if (!interest.isInfoPurchased()) {
       interest.setInfoPurchased(true);
       interestRepository.save(interest);
-      emailService.sendInterestedInfoEmail(
+      emailService.sendMail(
               seller.getEmail(),
               "Information of the interested - UberClocked",
               buildInterestedBody(post, interested)
