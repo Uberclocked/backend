@@ -19,18 +19,10 @@ public interface CompanyMapper {
   @AfterMapping
   default void extractDomain(CompanyDataDto dto, @MappingTarget Company entity) {
 
-    if (dto.email() == null || dto.email().isBlank()) {
-      return;
-    }
+    if (dto.email() == null || dto.email().isBlank()) return;
 
     String email = dto.email().toLowerCase().trim();
 
-    if (!email.contains("@")) {
-      throw new IllegalArgumentException("Invalid company email");
-    }
-
-    String domain = email.substring(email.indexOf("@") + 1);
-
-    entity.setEmailDomain(domain);
+    entity.setEmailDomain(email);
   }
 }

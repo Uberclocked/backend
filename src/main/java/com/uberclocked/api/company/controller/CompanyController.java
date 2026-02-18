@@ -24,25 +24,25 @@ public class CompanyController {
 
   @PostMapping
   @ResponseStatus(HttpStatus.CREATED)
-  public Company createCompany(@Valid @RequestBody CompanyDataDto dto) {
+  public CompanyDataDto createCompany(@Valid @RequestBody CompanyDataDto dto) {
     Company company = new Company();
     mapper.update(dto, company);
-    return companyService.createCompany(company);
+    return mapper.toDto(companyService.createCompany(company));
   }
 
   @GetMapping
-  public List<Company> getAllCompanies() {
-    return companyService.getAllCompanies();
+  public List<CompanyDataDto> getAllCompanies() {
+    return companyService.getAllCompanies().stream().map(mapper::toDto).toList();
   }
 
   @GetMapping("/{id}")
-  public Company getCompany(@PathVariable UUID id) {
-    return companyService.getCompany(id);
+  public CompanyDataDto getCompany(@PathVariable UUID id) {
+    return mapper.toDto(companyService.getCompany(id));
   }
 
   @PatchMapping("/{id}")
-  public Company updateCompany(@PathVariable UUID id, @Valid @RequestBody CompanyDataDto dto) {
-    return companyService.updateCompany(id, dto, mapper);
+  public CompanyDataDto updateCompany(@PathVariable UUID id, @Valid @RequestBody CompanyDataDto dto) {
+    return mapper.toDto(companyService.updateCompany(id, dto, mapper));
   }
 
   @DeleteMapping("/{id}")
