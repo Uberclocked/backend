@@ -5,7 +5,7 @@ plugins {
   id 'checkstyle'
   id 'jacoco'
   id 'com.diffplug.spotless' version '6.25.0'
-  id 'com.github.spotbugs' version '6.0.7'
+  id 'com.github.spotbugs' version '6.0.14'
 }
 
 group = 'com.uberclocked'
@@ -27,15 +27,6 @@ spotless {
     }
 }
 
-spotbugs {
-  effort = 'max'
-  reportLevel = 'medium'
-}
-
-spotbugsTest {
-    enabled = false
-}
-
 tasks.withType(com.github.spotbugs.snom.SpotBugsTask).configureEach {
     reports {
         html.required.set(true)
@@ -53,15 +44,46 @@ jacoco {
     toolVersion = '0.8.11'
 }
 
+def jacocoExcludes = [
+    // Spring proxies
+    '**/*$$EnhancerBySpringCGLIB$$*',
+    '**/*$$SpringCGLIB$$*',
+    '**/*$$FastClassBySpringCGLIB$$*',
+    '**/*$Proxy*',
+
+    // Spring Boot
+    '**/*Application.class',
+    '**/*Configuration.class',
+    '**/config/**',
+
+    // MapStruct
+    '**/*MapperImpl.class',
+
+    // Lombok / synthetic
+    '**/*$*'
+]
+
 jacocoTestReport {
     dependsOn test
     reports {
         xml.required.set(true)
         html.required.set(true)
     }
+
+    classDirectories.setFrom(
+        files(classDirectories.files.collect {
+            fileTree(dir: it, exclude: jacocoExcludes)
+        })
+    )
 }
 
 jacocoTestCoverageVerification {
+    classDirectories.setFrom(
+        files(classDirectories.files.collect {
+            fileTree(dir: it, exclude: jacocoExcludes)
+        })
+    )
+
     violationRules {
         rule {
             limit {
@@ -77,8 +99,13 @@ check.dependsOn(
     spotlessCheck,
     spotbugsMain,
     spotbugsTest,
-    jacocoTestReport
+    jacocoTestReport,
+    jacocoTestCoverageVerification
 )
+
+jacocoTestCoverageVerification {
+    dependsOn test
+}
 
 configurations {
 	compileOnly {
@@ -91,21 +118,42 @@ repositories {
 }
 
 dependencies {
-	implementation 'org.springframework.boot:spring-boot-h2console'
-	implementation 'org.springframework.boot:spring-boot-starter-data-jpa'
-	implementation 'org.springframework.boot:spring-boot-starter-security'
-	implementation 'org.springframework.boot:spring-boot-starter-validation'
-	implementation 'org.springframework.boot:spring-boot-starter-webmvc'
-	compileOnly 'org.projectlombok:lombok'
-	runtimeOnly 'com.h2database:h2'
-	runtimeOnly 'org.postgresql:postgresql'
-	annotationProcessor 'org.projectlombok:lombok'
-	testImplementation 'org.springframework.boot:spring-boot-starter-data-jpa-test'
-	testImplementation 'org.springframework.boot:spring-boot-starter-security-test'
-	testImplementation 'org.springframework.boot:spring-boot-starter-validation-test'
-	testImplementation 'org.springframework.boot:spring-boot-starter-webmvc-test'
-	testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
-  spotbugsPlugins 'com.h3xstream.findsecbugs:findsecbugs-plugin:1.12.0'
+  implementation 'org.springframework.boot:spring-boot-starter-webmvc'
+  implementation 'org.springframework.boot:spring-boot-starter-data-jpa'
+  implementation 'org.springframework.boot:spring-boot-starter-security'
+  implementation 'org.springframework.boot:spring-boot-starter-validation'
+  implementation 'org.springframework.boot:spring-boot-h2console'
+  implementation 'org.springframework.boot:spring-boot-starter-oauth2-resource-server'
+  implementation 'org.springframework.boot:spring-boot-starter-mail'
+
+
+  //WebClient
+  implementation 'org.springframework.boot:spring-boot-starter-webflux'
+
+  //MercadoPagoSDK
+  implementation("com.mercadopago:sdk-java:2.8.0")
+
+  // OpenAPI / Swagger
+  implementation 'org.springdoc:springdoc-openapi-starter-webmvc-ui:2.5.0'
+
+  // Lombok
+  compileOnly 'org.projectlombok:lombok'
+  annotationProcessor 'org.projectlombok:lombok'
+
+  // MapStruct
+  implementation 'org.mapstruct:mapstruct:1.6.0'
+  annotationProcessor 'org.mapstruct:mapstruct-processor:1.6.0'
+
+  // Databases
+  runtimeOnly 'com.h2database:h2'
+  runtimeOnly 'org.postgresql:postgresql'
+
+  // Tests
+  testImplementation 'org.springframework.boot:spring-boot-starter-data-jpa-test'
+  testImplementation 'org.springframework.boot:spring-boot-starter-security-test'
+  testImplementation 'org.springframework.boot:spring-boot-starter-validation-test'
+  testImplementation 'org.springframework.boot:spring-boot-starter-webmvc-test'
+  testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
 }
 
 tasks.named('test') {
